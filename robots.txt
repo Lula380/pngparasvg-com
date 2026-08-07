@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://pngparasvg.com/sitemap.xml
