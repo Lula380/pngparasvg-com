@@ -229,6 +229,60 @@ test('article guides include the PNG upload form and visible live error region',
   }
 });
 
+test('guide upload transfer keeps the private PNG handoff bounded and disposable', () => {
+  const script = read('assets/guide-upload.js');
+
+  assert.match(script, /['"]pngparasvg-transfer['"]/);
+  assert.match(script, /['"]pending-files['"]/);
+  assert.match(script, /MAX_BYTES\s*=\s*10\s*\*\s*1024\s*\*\s*1024/);
+  assert.match(script, /TTL_MS\s*=\s*15\s*\*\s*60\s*\*\s*1000/);
+  assert.match(script, /image\/png/);
+  assert.match(script, /\.png/i);
+  assert.match(script, /137\s*,\s*80\s*,\s*78\s*,\s*71\s*,\s*13\s*,\s*10\s*,\s*26\s*,\s*10/, 'transfer must verify the PNG byte signature');
+  assert.match(script, /delete\s*\(\s*RECORD_KEY\s*\)/, 'transfer must delete its single-use record');
+  assert.match(script, /expir/i, 'transfer must handle expiry explicitly');
+  assert.match(script, /setTimeout\s*\(/, 'transfer must schedule expiry cleanup');
+  assert.match(script, /purgeExpiredRecord\s*\(/, 'guide initialization must purge stale records');
+
+  for (const message of [
+    /arquivo PNG v[aá]lido/i,
+    /10\s*MiB/i,
+    /N[aã]o foi poss[ií]vel preparar a imagem neste navegador/i,
+    /transfer[eê]ncia expirou/i
+  ]) {
+    assert.match(script, message);
+  }
+
+  assert.match(script, /window\.PngTransfer\s*=\s*\{/);
+  assert.match(script, /MAX_BYTES\s*:/);
+  assert.match(script, /TTL_MS\s*:/);
+  assert.match(script, /initGuideUploads\s*:/);
+  assert.match(script, /consumePendingFile\s*:/);
+});
+
+test('guide pages load the deferred transfer script', () => {
+  for (const [url, file] of [...pages].filter(([candidate]) => candidate !== '/guias/' && candidate.startsWith('/guias/'))) {
+    const html = read(file);
+    const script = matches(html, /<script\b[^>]*\bsrc=["']\/assets\/guide-upload\.js["'][^>]*>/gi);
+    assert.equal(script.length, 1, `${url} must load the guide upload script once`);
+    assert.match(script[0][0], /\bdefer\b/i, `${url} transfer script must be deferred`);
+  }
+});
+
+test('home exposes the converter target and consumes a guide transfer without auto-converting', () => {
+  const html = read('index.html');
+  assert.match(html, /<[^>]+\bid=["']converter["'][^>]*>/i);
+  assert.match(html, /window\.PngTransfer\.consumePendingFile\(\)/);
+  assert.match(html, /selectedFile\s*=\s*file/);
+  assert.match(html, /originalFileName\s*=\s*file\.name\.replace/);
+  assert.match(html, /showFileSelected\(file\)/);
+  assert.doesNotMatch(
+    html.match(/window\.PngTransfer\.consumePendingFile\(\)[\s\S]*?\.catch\([\s\S]*?\);/)?.[0] ?? '',
+    /startConversion\s*\(/,
+    'guide import must not start conversion automatically'
+  );
+});
+
 test('article guide structured data matches visible metadata and canonical identity', () => {
   for (const url of guideRequirements.keys()) {
     const html = read(pages.get(url));

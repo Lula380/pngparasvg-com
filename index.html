@@ -298,7 +298,7 @@
     </nav>
 
     <!-- 主体区域 -->
-    <main class="flex-grow container mx-auto px-4 py-16 max-w-6xl">
+    <main id="converter" class="flex-grow container mx-auto px-4 py-16 max-w-6xl">
 
         <!-- Hero 区域 -->
         <div class="text-center mb-10 max-w-4xl mx-auto">
@@ -893,6 +893,19 @@
         // 防止默认拖拽行为
         document.addEventListener('dragover', (e) => e.preventDefault());
         document.addEventListener('drop', (e) => e.preventDefault());
+    </script>
+    <script src="/assets/guide-upload.js"></script>
+    <script>
+        window.PngTransfer.consumePendingFile()
+            .then((file) => {
+                if (!file) return;
+                selectedFile = file;
+                originalFileName = file.name.replace(/\.[^/.]+$/, '');
+                showFileSelected(file);
+            })
+            .catch(() => {
+                // Keep the normal homepage file picker usable; no blocking alert.
+            });
     </script>
 </body>
 </html>
