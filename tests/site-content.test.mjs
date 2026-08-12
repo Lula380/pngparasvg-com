@@ -73,6 +73,28 @@ function jaccardSimilarity(left, right) {
   return shared / new Set([...left, ...right]).size;
 }
 
+function openingTagsWithClass(html, className) {
+  return matches(html, /<([a-z][\w-]*)\b[^>]*>/gi)
+    .map((match) => match[0])
+    .filter((tag) => attribute(tag, 'class')?.split(/\s+/).includes(className));
+}
+
+function jsonLdObjects(value) {
+  if (Array.isArray(value)) return value.flatMap(jsonLdObjects);
+  if (!value || typeof value !== 'object') return [];
+  return [value, ...Object.values(value).flatMap(jsonLdObjects)];
+}
+
+function jsonLdFor(html, url) {
+  return matches(
+    html,
+    /<script\b[^>]*\btype=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi
+  ).map((match, index) => {
+    assert.doesNotThrow(() => JSON.parse(match[1]), `${url} JSON-LD block ${index + 1} must parse`);
+    return JSON.parse(match[1]);
+  });
+}
+
 test('every mapped page exists and declares Brazilian Portuguese', () => {
   for (const { url, file } of pageDocuments()) {
     assert.ok(fs.existsSync(path.join(root, file)), `${url} must exist at ${file}`);
@@ -172,21 +194,74 @@ test('article guides include the PNG upload form and visible live error region',
     assert.equal(forms.length, 1, `${url} needs one guide-upload form`);
 
     const form = forms[0][0];
-    assert.match(form, /<input\b[^>]*\baccept=["']image\/png,\.png["'][^>]*>/i, `${url} upload form must accept PNG files`);
+    const inputTags = openingTagsWithClass(form, 'guide-upload-input');
+    const previewTags = openingTagsWithClass(form, 'guide-upload-preview');
+    const submitTags = openingTagsWithClass(form, 'guide-upload-submit');
     const errorRegions = matches(
       form,
       /<([a-z][\w-]*)\b[^>]*\bclass=["'][^"']*\bguide-upload-error\b[^"']*["'][^>]*>([\s\S]*?)<\/\1>/gi
     );
+
+    assert.equal(inputTags.length, 1, `${url} needs exactly one guide-upload-input descendant`);
+    assert.match(inputTags[0], /^<input\b/i, `${url} guide-upload-input must be an input`);
+    assert.equal(attribute(inputTags[0], 'type')?.toLowerCase(), 'file', `${url} upload input type must be file`);
+    assert.equal(attribute(inputTags[0], 'accept')?.toLowerCase(), 'image/png,.png', `${url} upload input must accept PNG only`);
+    assert.match(inputTags[0], /\srequired(?:\s|=|>)/i, `${url} upload input must be required`);
+
+    assert.equal(previewTags.length, 1, `${url} needs exactly one guide-upload-preview descendant`);
+    assert.match(previewTags[0], /^<img\b/i, `${url} guide-upload-preview must be an image`);
+
+    assert.equal(submitTags.length, 1, `${url} needs exactly one guide-upload-submit descendant`);
+    assert.match(submitTags[0], /^<button\b/i, `${url} guide-upload-submit must be a button`);
+    assert.equal(attribute(submitTags[0], 'type')?.toLowerCase(), 'submit', `${url} upload button type must be submit`);
+
     assert.equal(errorRegions.length, 1, `${url} upload form needs one guide-upload-error region`);
 
     const [errorRegion] = errorRegions;
     const openingTag = errorRegion[0].slice(0, errorRegion[0].indexOf('>') + 1);
     const fallbackText = errorRegion[2].replace(/<[^>]*>/g, '').replace(/&nbsp;/gi, ' ').trim();
-    assert.match(openingTag, /\baria-live=["'](?:polite|assertive)["']/i, `${url} error region must be live`);
+    assert.equal(attribute(openingTag, 'role')?.toLowerCase(), 'status', `${url} error region role must be status`);
+    assert.equal(attribute(openingTag, 'aria-live')?.toLowerCase(), 'polite', `${url} error region must announce politely`);
     assert.doesNotMatch(openingTag, /\baria-hidden=["']true["']/i, `${url} error region cannot be aria-hidden`);
     assert.doesNotMatch(openingTag, /\bhidden\b/i, `${url} error region must be visible`);
     assert.doesNotMatch(openingTag, /\bstyle=["'][^"']*(?:display\s*:\s*none|visibility\s*:\s*hidden)[^"']*["']/i, `${url} error region cannot be hidden inline`);
     assert.notEqual(fallbackText, '', `${url} error region needs useful fallback or status text`);
+  }
+});
+
+test('article guide structured data matches visible metadata and canonical identity', () => {
+  for (const url of guideRequirements.keys()) {
+    const html = read(pages.get(url));
+    const canonicalTag = matches(html, /<link\b[^>]*>/gi)
+      .map((match) => match[0])
+      .find((tag) => attribute(tag, 'rel')?.toLowerCase() === 'canonical');
+    const canonical = attribute(canonicalTag, 'href');
+    const h1 = matches(html, /<h1\b[^>]*>([\s\S]*?)<\/h1>/gi)[0]?.[1].replace(/<[^>]*>/g, '').trim();
+    const publishedTag = openingTagsWithClass(html, 'article-published')[0];
+    const modifiedTag = openingTagsWithClass(html, 'article-modified')[0];
+    const objects = jsonLdFor(html, url).flatMap(jsonLdObjects);
+    const breadcrumbs = objects.filter((object) => object['@type'] === 'BreadcrumbList');
+    const articles = objects.filter((object) => object['@type'] === 'Article');
+
+    assert.equal(breadcrumbs.length, 1, `${url} needs one BreadcrumbList object`);
+    assert.equal(articles.length, 1, `${url} needs one Article object`);
+    assert.ok(publishedTag, `${url} needs visible published metadata`);
+    assert.ok(modifiedTag, `${url} needs visible modified metadata`);
+
+    const article = articles[0];
+    const terminalCrumb = breadcrumbs[0].itemListElement.at(-1);
+    assert.equal(article.headline, h1, `${url} Article headline must match its visible h1`);
+    assert.equal(article.datePublished, attribute(publishedTag, 'datetime'), `${url} published date must match visible metadata`);
+    assert.equal(article.dateModified, attribute(modifiedTag, 'datetime'), `${url} modified date must match visible metadata`);
+    assert.equal(terminalCrumb.item, canonical, `${url} terminal breadcrumb must match canonical`);
+    assert.equal(article.mainEntityOfPage, canonical, `${url} Article mainEntityOfPage must match canonical`);
+    assert.equal(article.publisher?.['@type'], 'Organization', `${url} publisher must be an Organization`);
+    assert.equal(article.publisher?.name, 'pngparasvg.com', `${url} publisher must use the site name`);
+    assert.equal(
+      objects.filter((object) => object['@type'] === 'Person').length,
+      0,
+      `${url} cannot invent a Person author`
+    );
   }
 });
 
