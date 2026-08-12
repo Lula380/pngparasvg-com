@@ -123,12 +123,28 @@ test('article guides include the PNG upload form and visible live error region',
   const articles = [...pages.entries()].filter(([url]) => url !== '/guias/' && url.startsWith('/guias/'));
   for (const [url, file] of articles) {
     const html = read(file);
-    assert.match(html, /<form\b[^>]*\bclass=["'][^"']*\bguide-upload\b[^"']*["'][^>]*>/i, `${url} needs a guide-upload form`);
-    assert.match(html, /\baccept=["']image\/png,\.png["']/i, `${url} must accept PNG files`);
-    const errorRegion = matches(html, /<[^>]*\bclass=["'][^"']*\bguide-upload-error\b[^"']*["'][^>]*>/gi);
-    assert.equal(errorRegion.length, 1, `${url} needs one guide-upload-error region`);
-    assert.match(errorRegion[0][0], /\baria-live=["'](?:polite|assertive)["']/i, `${url} error region must be live`);
-    assert.doesNotMatch(errorRegion[0][0], /\bhidden\b/i, `${url} error region must be visible`);
+    const forms = matches(
+      html,
+      /<form\b[^>]*\bclass=["'][^"']*\bguide-upload\b[^"']*["'][^>]*>[\s\S]*?<\/form>/gi
+    );
+    assert.equal(forms.length, 1, `${url} needs one guide-upload form`);
+
+    const form = forms[0][0];
+    assert.match(form, /<input\b[^>]*\baccept=["']image\/png,\.png["'][^>]*>/i, `${url} upload form must accept PNG files`);
+    const errorRegions = matches(
+      form,
+      /<([a-z][\w-]*)\b[^>]*\bclass=["'][^"']*\bguide-upload-error\b[^"']*["'][^>]*>([\s\S]*?)<\/\1>/gi
+    );
+    assert.equal(errorRegions.length, 1, `${url} upload form needs one guide-upload-error region`);
+
+    const [errorRegion] = errorRegions;
+    const openingTag = errorRegion[0].slice(0, errorRegion[0].indexOf('>') + 1);
+    const fallbackText = errorRegion[2].replace(/<[^>]*>/g, '').replace(/&nbsp;/gi, ' ').trim();
+    assert.match(openingTag, /\baria-live=["'](?:polite|assertive)["']/i, `${url} error region must be live`);
+    assert.doesNotMatch(openingTag, /\baria-hidden=["']true["']/i, `${url} error region cannot be aria-hidden`);
+    assert.doesNotMatch(openingTag, /\bhidden\b/i, `${url} error region must be visible`);
+    assert.doesNotMatch(openingTag, /\bstyle=["'][^"']*(?:display\s*:\s*none|visibility\s*:\s*hidden)[^"']*["']/i, `${url} error region cannot be hidden inline`);
+    assert.notEqual(fallbackText, '', `${url} error region needs useful fallback or status text`);
   }
 });
 
