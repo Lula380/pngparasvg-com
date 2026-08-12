@@ -70,15 +70,8 @@
     });
   }
 
-  function isPng(file) {
-    return Boolean(file) && (
-      file.type === 'image/png' ||
-      (!file.type && /\.png$/i.test(file.name || ''))
-    );
-  }
-
   function validationMessage(file) {
-    if (!isPng(file)) return INVALID_FORMAT_MESSAGE;
+    if (!(file instanceof Blob)) return INVALID_FORMAT_MESSAGE;
     if (file.size > MAX_BYTES) return OVERSIZE_MESSAGE;
     return '';
   }
@@ -138,8 +131,8 @@
   }
 
   function initGuideUploads() {
-    purgeExpiredRecord();
     const forms = document.querySelectorAll('.guide-upload');
+    if (forms.length) purgeExpiredRecord();
 
     forms.forEach(function (form) {
       if (form.dataset.pngTransferReady === 'true') return;
@@ -160,6 +153,9 @@
         if (previewUrl) URL.revokeObjectURL(previewUrl);
         previewUrl = '';
         preview.removeAttribute('src');
+        preview.alt = '';
+        preview.hidden = true;
+        preview.classList.add('hidden');
       }
 
       input.addEventListener('change', async function () {
@@ -182,6 +178,8 @@
         previewUrl = URL.createObjectURL(file);
         preview.src = previewUrl;
         preview.alt = 'Prévia de ' + file.name;
+        preview.hidden = false;
+        preview.classList.remove('hidden');
         status.textContent = file.name + ' selecionado. Revise a prévia e continue.';
       });
 
@@ -231,7 +229,7 @@
     if (!Number.isFinite(record.expiresAt) || record.expiresAt <= Date.now()) {
       throw new Error(EXPIRED_MESSAGE);
     }
-    if (!(record.blob instanceof Blob) || !isPng(record) || record.blob.size > MAX_BYTES || !(await hasPngSignature(record.blob))) {
+    if (!(record.blob instanceof Blob) || record.blob.size > MAX_BYTES || !(await hasPngSignature(record.blob))) {
       throw new Error(INVALID_FORMAT_MESSAGE);
     }
 

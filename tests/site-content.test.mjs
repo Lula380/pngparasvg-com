@@ -504,7 +504,7 @@ test('homepage footer groups real tool, guide, and trust links', () => {
 test('homepage visible FAQ exactly matches its FAQPage structured data', () => {
   const html = read('index.html');
   const faqSection = html.match(/<section\b[^>]*\bid=["']faq["'][^>]*>([\s\S]*?)<\/section>/i)?.[1] ?? '';
-  const questions = matches(faqSection, /<button\b[^>]*>[\s\S]*?<span\b[^>]*>([\s\S]*?)<\/span>/gi)
+  const questions = matches(faqSection, /<summary\b[^>]*>([\s\S]*?)<\/summary>/gi)
     .map((item) => visibleText(item[1]));
   const answers = matches(
     faqSection,
@@ -545,22 +545,54 @@ test('homepage converter controls expose accessible names and preview state', ()
   assert.match(html, /resetToUploadPrompt\(\)[\s\S]*?thumbImg\.removeAttribute\(['"]src['"]\)[\s\S]*?thumbImg\.alt\s*=\s*['"]['"]/);
 });
 
-test('homepage FAQ triggers expose their expanded state and control stable panels', () => {
+test('homepage FAQ uses native disclosure controls and needs no executable CDN', () => {
   const html = read('index.html');
   const faqSection = html.match(/<section\b[^>]*\bid=["']faq["'][^>]*>([\s\S]*?)<\/section>/i)?.[1] ?? '';
+  assert.equal(matches(faqSection, /<details\b[^>]*>/gi).length, 6);
+  assert.equal(matches(faqSection, /<summary\b[^>]*>/gi).length, 6);
+  const remoteExecutableAssets = matches(html, /<(?:script|link)\b[^>]*>/gi)
+    .map((match) => match[0])
+    .filter((tag) => /(?:src|href)=["']https?:\/\//i.test(tag) && !/\brel=["']canonical["']/i.test(tag));
+  assert.deepEqual(remoteExecutableAssets, [], 'homepage cannot execute or load remote assets');
+  assert.doesNotMatch(html, /\bx-(?:data|show|cloak|collapse)\b|@click|:aria-expanded|:class/i);
+});
 
-  for (let index = 1; index <= 6; index += 1) {
-    const button = faqSection.match(
-      new RegExp(`<button\\b[^>]*\\baria-controls=["']faq-answer-${index}["'][^>]*>`, 'i')
-    )?.[0] ?? '';
-    assert.notEqual(button, '', `FAQ ${index} trigger must control its panel`);
-    assert.match(button, new RegExp(`:aria-expanded=["']open === ${index}["']`, 'i'));
-    assert.match(
-      faqSection,
-      new RegExp(`<div\\b[^>]*\\bid=["']faq-answer-${index}["'][^>]*\\bx-show=["']open === ${index}["'][^>]*>`, 'i'),
-      `FAQ ${index} needs a stable controlled panel`
-    );
+test('all local public assets referenced by formal pages exist', () => {
+  for (const { url, file } of pageDocuments()) {
+    const html = read(file);
+    const assets = matches(html, /<(?:script|link)\b[^>]*>/gi)
+      .map((match) => match[0])
+      .map((tag) => attribute(tag, 'src') || attribute(tag, 'href'))
+      .filter((asset) => asset && asset.startsWith('/') && !asset.endsWith('/'));
+    for (const asset of assets) {
+      assert.ok(fs.existsSync(path.join(root, asset.slice(1))), `${url} references missing asset ${asset}`);
+    }
   }
+});
+
+test('self-hosted homepage CSS covers every class used in homepage markup', () => {
+  const html = read('index.html');
+  const css = `${read('assets/home.css')}\n${matches(html, /<style\b[^>]*>([\s\S]*?)<\/style>/gi).map((match) => match[1]).join('\n')}`;
+  const ignored = new Set([
+    'brutal-btn', 'brutal-btn-secondary', 'brutal-card', 'brutal-cta', 'brutal-dropzone',
+    'brutal-faq', 'brutal-footer', 'brutal-progress', 'brutal-progress-bar', 'brutal-tag',
+    'brutal-tag-blue', 'brutal-tag-green', 'brutal-tag-pink', 'brutal-tag-yellow', 'faq-answer',
+    'font-bebas', 'rounded-none', 'transfer-status'
+  ]);
+  const classNames = new Set(matches(html, /\bclass=["']([^"']*)["']/gi)
+    .flatMap((match) => match[1].split(/\s+/))
+    .filter(Boolean));
+  for (const className of classNames) {
+    if (ignored.has(className)) continue;
+    const selector = className.replaceAll(':', '\\:');
+    assert.ok(css.includes(`.${selector}`), `homepage class .${className} needs a self-hosted CSS rule`);
+  }
+});
+
+test('homepage CTA chooses instant scrolling for reduced-motion users', () => {
+  const html = read('index.html');
+  assert.match(html, /matchMedia\(['"]\(prefers-reduced-motion: reduce\)['"]\)\.matches/);
+  assert.match(html, /scrollIntoView\(\{\s*behavior:\s*reduceMotion\s*\?\s*['"]auto['"]\s*:\s*['"]smooth['"]\s*\}\)/);
 });
 
 test('homepage opening tags never repeat an attribute or declare duplicate ids', () => {

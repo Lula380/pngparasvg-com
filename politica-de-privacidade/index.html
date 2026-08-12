@@ -42,7 +42,7 @@
       <section aria-labelledby="transferencia-temporaria">
         <h2 id="transferencia-temporaria">Transferência temporária entre um guia e o conversor</h2>
         <p>Se você selecionar um PNG em um dos guias e optar por abri-lo no conversor, o navegador grava temporariamente o arquivo e dados associados — como nome, tipo e datas técnicas — em uma base IndexedDB no seu próprio dispositivo.</p>
-        <p>Esse registro é de uso único e expira em 15 minutos. Ele é excluído quando o conversor o consome, e o site também agenda a limpeza após o prazo e tenta remover registros expirados quando o recurso é iniciado novamente. Limpar os dados do site nas configurações do navegador também remove esse armazenamento.</p>
+        <p>Esse registro é de uso único e fica indisponível após 15 minutos. Ele é excluído quando o conversor o consome; enquanto um guia estiver aberto, o site também agenda uma tentativa de limpeza após o prazo e remove registros expirados na próxima oportunidade em que o recurso for iniciado. Limpar os dados do site nas configurações do navegador também remove esse armazenamento.</p>
       </section>
 
       <section aria-labelledby="logs">
@@ -54,7 +54,7 @@
       <section aria-labelledby="cookies-analytics">
         <h2 id="cookies-analytics">Cookies e analytics</h2>
         <p>Nesta versão do site, não há ferramenta de analytics intencionalmente configurada nem cookie de publicidade ou medição criado por nós. A base IndexedDB descrita acima é armazenamento local do navegador, não um cookie.</p>
-        <p>Recursos técnicos carregados de provedores externos podem receber as requisições de rede necessárias para entregar seus arquivos e aplicar suas próprias práticas técnicas. Caso analytics, cookies ou outros tratamentos sejam adicionados no futuro, esta política deverá ser atualizada antes ou junto da mudança.</p>
+        <p>As páginas, folhas de estilo e scripts usados pelo conversor são servidos como recursos do próprio site. A hospedagem e a rede ainda recebem as requisições técnicas descritas na seção de logs. Caso analytics, cookies ou outros tratamentos sejam adicionados no futuro, esta política deverá ser atualizada antes ou junto da mudança.</p>
       </section>
 
       <section aria-labelledby="retencao">

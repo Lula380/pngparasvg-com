@@ -62,7 +62,7 @@
                 "name": "Minhas imagens são enviadas para algum servidor?",
                 "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "A conversão usa processamento local no navegador, sem enviar a imagem para um servidor. Quando você traz um PNG por um guia do site, uma cópia temporária fica no armazenamento deste navegador e é removida ao ser consumida ou expirar."
+                    "text": "A conversão usa processamento local no navegador, sem enviar a imagem para um servidor. Quando você traz um PNG por um guia do site, uma cópia temporária fica disponível por até 15 minutos e é excluída ao ser consumida ou na próxima oportunidade de limpeza."
                 }
             },
             {
@@ -77,37 +77,10 @@
     }
     </script>
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="/assets/home.css">
     <script src="imagetracer_v1.2.6.js"></script>
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        indigo: {
-                            50: '#eef2ff',
-                            100: '#e0e7ff',
-                            200: '#c7d2fe',
-                            300: '#a5b4fc',
-                            400: '#818cf8',
-                            500: '#6366f1',
-                            600: '#4f46e5',
-                            700: '#4338ca',
-                            800: '#3730a3',
-                            900: '#312e81'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap');
-
         * {
             border-radius: 0 !important;
         }
@@ -116,10 +89,6 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background-color: #FFFBEB;
             color: #000;
-        }
-
-        [x-cloak] {
-            display: none !important;
         }
 
         /* Bebas Neue 标题字体 */
@@ -285,7 +254,7 @@
         }
     </style>
 </head>
-<body x-data class="min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col">
 
     <!-- 导航栏 -->
     <nav class="bg-white border-b-4 border-black py-4" aria-label="Navegação principal">
@@ -515,84 +484,54 @@
         <!-- FAQ 区域 -->
         <section class="mt-20 max-w-3xl mx-auto" id="faq">
             <h2 class="text-3xl md:text-4xl font-black text-center mb-10">PERGUNTAS FREQUENTES</h2>
-            <div class="space-y-4" x-data="{ open: null }">
+            <div class="space-y-4">
                 <!-- FAQ Item 1: Como converter PNG em SVG online grátis? -->
-                <div class="brutal-faq" :class="open === 1 ? 'shadow-lg ring-2 ring-indigo-100' : ''">
-                    <button type="button" @click="open = open === 1 ? null : 1" :aria-expanded="open === 1" aria-controls="faq-answer-1" class="w-full flex items-center justify-between cursor-pointer p-6 font-black text-lg hover:text-purple-600 text-left">
-                        <span>Como converter PNG em SVG online grátis?</span>
-                        <svg class="w-5 h-5 text-slate-400 transition-transform duration-300 flex-shrink-0 ml-4" :class="open === 1 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </button>
-                    <div id="faq-answer-1" x-show="open === 1" x-collapse x-cloak class="faq-answer px-6 pb-6 text-slate-600 leading-relaxed">
+                <details class="brutal-faq">
+                    <summary class="cursor-pointer p-6 font-black text-lg hover:text-purple-600">Como converter PNG em SVG online grátis?</summary>
+                    <div class="faq-answer px-6 pb-6 text-slate-600 leading-relaxed">
                         <p>Selecione ou arraste um PNG, confira o arquivo escolhido e clique em Converter para SVG agora. O rastreamento acontece no navegador; depois, revise a prévia e baixe o SVG.</p>
                     </div>
-                </div>
+                </details>
 
                 <!-- FAQ Item 2: Como transformar PNG em vetor e qual a diferença? -->
-                <div class="brutal-faq" :class="open === 2 ? 'shadow-lg ring-2 ring-indigo-100' : ''">
-                    <button type="button" @click="open = open === 2 ? null : 2" :aria-expanded="open === 2" aria-controls="faq-answer-2" class="w-full flex items-center justify-between cursor-pointer p-6 font-black text-lg hover:text-purple-600 text-left">
-                        <span>Como transformar PNG em vetor e qual a diferença?</span>
-                        <svg class="w-5 h-5 text-slate-400 transition-transform duration-300 flex-shrink-0 ml-4" :class="open === 2 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </button>
-                    <div id="faq-answer-2" x-show="open === 2" x-collapse x-cloak class="faq-answer px-6 pb-6 text-slate-600 leading-relaxed">
+                <details class="brutal-faq">
+                    <summary class="cursor-pointer p-6 font-black text-lg hover:text-purple-600">Como transformar PNG em vetor e qual a diferença?</summary>
+                    <div class="faq-answer px-6 pb-6 text-slate-600 leading-relaxed">
                         <p>PNG é uma imagem formada por pixels. SVG descreve caminhos vetoriais, que podem ser redimensionados sem pixelar. A conversão rastreia formas e cores, mas a fidelidade depende da complexidade e da nitidez da imagem original.</p>
                     </div>
-                </div>
+                </details>
 
                 <!-- FAQ Item 3: O conversor suporta PNG para SVG colorido? -->
-                <div class="brutal-faq" :class="open === 3 ? 'shadow-lg ring-2 ring-indigo-100' : ''">
-                    <button type="button" @click="open = open === 3 ? null : 3" :aria-expanded="open === 3" aria-controls="faq-answer-3" class="w-full flex items-center justify-between cursor-pointer p-6 font-black text-lg hover:text-purple-600 text-left">
-                        <span>O conversor suporta converter PNG para SVG colorido?</span>
-                        <svg class="w-5 h-5 text-slate-400 transition-transform duration-300 flex-shrink-0 ml-4" :class="open === 3 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </button>
-                    <div id="faq-answer-3" x-show="open === 3" x-collapse x-cloak class="faq-answer px-6 pb-6 text-slate-600 leading-relaxed">
+                <details class="brutal-faq">
+                    <summary class="cursor-pointer p-6 font-black text-lg hover:text-purple-600">O conversor suporta converter PNG para SVG colorido?</summary>
+                    <div class="faq-answer px-6 pb-6 text-slate-600 leading-relaxed">
                         <p>Sim. O rastreamento identifica áreas de cor e cria caminhos no SVG. A paleta é simplificada durante o processo, por isso o resultado varia conforme a quantidade de cores, os gradientes e os detalhes do PNG.</p>
                     </div>
-                </div>
+                </details>
 
                 <!-- FAQ Item 4: O tamanho da imagem afeta a conversão? -->
-                <div class="brutal-faq" :class="open === 4 ? 'shadow-lg ring-2 ring-indigo-100' : ''">
-                    <button type="button" @click="open = open === 4 ? null : 4" :aria-expanded="open === 4" aria-controls="faq-answer-4" class="w-full flex items-center justify-between cursor-pointer p-6 font-black text-lg hover:text-purple-600 text-left">
-                        <span>O tamanho da imagem afeta a conversão?</span>
-                        <svg class="w-5 h-5 text-slate-400 transition-transform duration-300 flex-shrink-0 ml-4" :class="open === 4 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </button>
-                    <div id="faq-answer-4" x-show="open === 4" x-collapse x-cloak class="faq-answer px-6 pb-6 text-slate-600 leading-relaxed">
+                <details class="brutal-faq">
+                    <summary class="cursor-pointer p-6 font-black text-lg hover:text-purple-600">O tamanho da imagem afeta a conversão?</summary>
+                    <div class="faq-answer px-6 pb-6 text-slate-600 leading-relaxed">
                         <p>Sim. Imagens grandes ou muito detalhadas exigem mais memória e processamento do dispositivo. O conversor reduz dimensões muito altas antes do rastreamento, então prefira um PNG nítido e revise a prévia antes de baixar.</p>
                     </div>
-                </div>
+                </details>
 
                 <!-- FAQ Item 5: Minhas imagens são enviadas para algum servidor? -->
-                <div class="brutal-faq" :class="open === 5 ? 'shadow-lg ring-2 ring-indigo-100' : ''">
-                    <button type="button" @click="open = open === 5 ? null : 5" :aria-expanded="open === 5" aria-controls="faq-answer-5" class="w-full flex items-center justify-between cursor-pointer p-6 font-black text-lg hover:text-purple-600 text-left">
-                        <span>Minhas imagens são enviadas para algum servidor?</span>
-                        <svg class="w-5 h-5 text-slate-400 transition-transform duration-300 flex-shrink-0 ml-4" :class="open === 5 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </button>
-                    <div id="faq-answer-5" x-show="open === 5" x-collapse x-cloak class="faq-answer px-6 pb-6 text-slate-600 leading-relaxed">
-                        <p>A conversão usa processamento local no navegador, sem enviar a imagem para um servidor. Quando você traz um PNG por um guia do site, uma cópia temporária fica no armazenamento deste navegador e é removida ao ser consumida ou expirar.</p>
+                <details class="brutal-faq">
+                    <summary class="cursor-pointer p-6 font-black text-lg hover:text-purple-600">Minhas imagens são enviadas para algum servidor?</summary>
+                    <div class="faq-answer px-6 pb-6 text-slate-600 leading-relaxed">
+                        <p>A conversão usa processamento local no navegador, sem enviar a imagem para um servidor. Quando você traz um PNG por um guia do site, uma cópia temporária fica disponível por até 15 minutos e é excluída ao ser consumida ou na próxima oportunidade de limpeza.</p>
                     </div>
-                </div>
+                </details>
 
                 <!-- FAQ Item 6: Como usar o arquivo SVG depois de baixar? -->
-                <div class="brutal-faq" :class="open === 6 ? 'shadow-lg ring-2 ring-indigo-100' : ''">
-                    <button type="button" @click="open = open === 6 ? null : 6" :aria-expanded="open === 6" aria-controls="faq-answer-6" class="w-full flex items-center justify-between cursor-pointer p-6 font-black text-lg hover:text-purple-600 text-left">
-                        <span>Como usar o arquivo SVG depois de baixar?</span>
-                        <svg class="w-5 h-5 text-slate-400 transition-transform duration-300 flex-shrink-0 ml-4" :class="open === 6 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                        </svg>
-                    </button>
-                    <div id="faq-answer-6" x-show="open === 6" x-collapse x-cloak class="faq-answer px-6 pb-6 text-slate-600 leading-relaxed">
+                <details class="brutal-faq">
+                    <summary class="cursor-pointer p-6 font-black text-lg hover:text-purple-600">Como usar o arquivo SVG depois de baixar?</summary>
+                    <div class="faq-answer px-6 pb-6 text-slate-600 leading-relaxed">
                         <p>Abra o SVG em um editor vetorial para ajustar caminhos e cores, ou use-o em um projeto web com a tag img. Antes de imprimir ou publicar, amplie a prévia e verifique se o rastreamento manteve os detalhes importantes.</p>
                     </div>
-                </div>
+                </details>
             </div>
         </section>
 
@@ -601,7 +540,7 @@
             <div class="brutal-cta p-10 md:p-14 text-white">
                 <h2 class="text-2xl md:text-4xl font-black mb-4">PRONTO PARA VETORIZAR?</h2>
                 <p class="text-lg mb-8 opacity-90">Comece agora. É grátis e funciona no navegador.</p>
-                <button onclick="document.getElementById('drop-zone').scrollIntoView({behavior: 'smooth'})" class="brutal-btn-secondary w-full sm:w-auto text-lg sm:text-xl py-4 px-4 sm:px-10">
+                <button id="cta-start-btn" type="button" class="brutal-btn-secondary w-full sm:w-auto text-lg sm:text-xl py-4 px-4 sm:px-10">
                     ⚡ COMEÇAR AGORA
                 </button>
             </div>
@@ -675,6 +614,7 @@
         const progressBar = document.getElementById('progress-bar');
         const loadingText = document.getElementById('loading-text');
         const transferStatus = document.getElementById('transfer-status');
+        const ctaStartBtn = document.getElementById('cta-start-btn');
 
         let currentSvgString = '';
         let originalFileName = 'imagem';
@@ -683,6 +623,8 @@
         let progressInterval = null;
         let previewReader = null;
         let previewVersion = 0;
+        let interactionGeneration = 0;
+        let conversionGeneration = 0;
 
         // 进度文案
         const loadingMessages = [
@@ -691,6 +633,11 @@
             'Otimizando detalhes...'
         ];
         let messageIndex = 0;
+
+        ctaStartBtn.onclick = () => {
+            const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            dropZone.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
+        };
 
         // 格式化文件大小
         function formatFileSize(bytes) {
@@ -714,14 +661,17 @@
         // 移除文件按钮
         removeFileBtn.onclick = (e) => {
             e.stopPropagation();
+            interactionGeneration += 1;
             resetToUploadPrompt();
         };
 
         // 文件选择后
         fileInput.onchange = (e) => {
             if (e.target.files[0]) {
+                interactionGeneration += 1;
                 selectedFile = e.target.files[0];
                 originalFileName = selectedFile.name.replace(/\.[^/.]+$/, '');
+                transferStatus.textContent = '';
                 showFileSelected(selectedFile);
             }
         };
@@ -773,6 +723,8 @@
 
         // 开始转换流程
         function startConversion() {
+            const conversionFile = selectedFile;
+            conversionGeneration += 1;
             fileSelected.classList.add('hidden');
             loading.classList.remove('hidden');
 
@@ -803,8 +755,6 @@
                     canvas.width = width;
                     canvas.height = height;
                     const ctx = canvas.getContext('2d');
-                    ctx.fillStyle = '#FFFFFF';
-                    ctx.fillRect(0, 0, width, height);
 
                     // 增强饱和度
                     ctx.filter = 'saturate(1.15)';
@@ -875,7 +825,7 @@
                 alert('Erro ao ler o arquivo.');
                 resetToUploadPrompt();
             };
-            reader.readAsDataURL(selectedFile);
+            reader.readAsDataURL(conversionFile);
         }
 
         // 加载动画
@@ -927,6 +877,7 @@
 
         // 重置按钮
         resetBtn.onclick = () => {
+            interactionGeneration += 1;
             resultContainer.classList.add('hidden');
             currentSvgString = '';
             resetToUploadPrompt();
@@ -950,9 +901,11 @@
             dropZone.classList.remove('drop-zone-active');
             if (!fileSelected.classList.contains('hidden')) return;
             const file = e.dataTransfer.files[0];
-            if (file && file.type.startsWith('image/')) {
+            if (file) {
+                interactionGeneration += 1;
                 selectedFile = file;
                 originalFileName = file.name.replace(/\.[^/.]+$/, '');
+                transferStatus.textContent = '';
                 showFileSelected(file);
             }
         });
@@ -963,15 +916,27 @@
     </script>
     <script src="/assets/guide-upload.js"></script>
     <script>
+        const importRequested = new URLSearchParams(window.location.search).get('import') === 'guide';
+        const importInteractionGeneration = interactionGeneration;
+        const importConversionGeneration = conversionGeneration;
         window.PngTransfer.consumePendingFile()
             .then((file) => {
-                if (!file) return;
+                if (!file) {
+                    if (importRequested && interactionGeneration === importInteractionGeneration && conversionGeneration === importConversionGeneration) {
+                        transferStatus.textContent = 'A transferência expirou ou não está mais disponível. Selecione o arquivo novamente.';
+                    }
+                    return;
+                }
+                if (interactionGeneration !== importInteractionGeneration || conversionGeneration !== importConversionGeneration) return;
                 selectedFile = file;
                 originalFileName = file.name.replace(/\.[^/.]+$/, '');
+                transferStatus.textContent = '';
                 showFileSelected(file);
             })
             .catch((error) => {
-                transferStatus.textContent = error.message;
+                if (interactionGeneration === importInteractionGeneration && conversionGeneration === importConversionGeneration) {
+                    transferStatus.textContent = error.message;
+                }
             });
     </script>
 </body>

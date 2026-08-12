@@ -15,9 +15,14 @@ class FakeFile extends Blob {
 }
 
 function element(classes = []) {
+  const classNames = new Set(classes);
   const listeners = new Map();
   return {
-    classList: { contains: (name) => classes.includes(name) },
+    classList: {
+      add: (...names) => names.forEach((name) => classNames.add(name)),
+      remove: (...names) => names.forEach((name) => classNames.delete(name)),
+      contains: (name) => classNames.has(name)
+    },
     dataset: {},
     disabled: false,
     files: [],
@@ -25,6 +30,7 @@ function element(classes = []) {
     textContent: '',
     alt: '',
     src: '',
+    hidden: classes.includes('hidden'),
     addEventListener(type, listener) { listeners.set(type, listener); },
     removeAttribute(name) { delete this[name]; },
     async dispatch(type) { return listeners.get(type)?.({ preventDefault() {} }); }
@@ -86,10 +92,11 @@ function indexedDbHarness(initialRecord = null, autoOpenSuccess = true) {
   };
 }
 
-function setup({ initialRecord = null, now = 1000, autoOpenSuccess = true } = {}) {
+function setup({ initialRecord = null, now = 1000, autoOpenSuccess = true, includeGuideForm = true } = {}) {
   let currentTime = now;
   const input = element();
-  const preview = element();
+  const preview = element(['hidden']);
+  preview.removeAttribute('src');
   const status = element();
   const submit = element();
   const form = element();
@@ -114,7 +121,7 @@ function setup({ initialRecord = null, now = 1000, autoOpenSuccess = true } = {}
   };
   const document = {
     readyState: 'complete',
-    querySelectorAll: () => [form],
+    querySelectorAll: () => includeGuideForm ? [form] : [],
     addEventListener() {}
   };
   const context = vm.createContext({
@@ -152,6 +159,16 @@ test('accepts PNG magic bytes and rejects a renamed JPEG before preview', async 
   await disguised.input.dispatch('change');
   assert.equal(disguised.preview.src, undefined);
   assert.match(disguised.status.textContent, /PNG válido/);
+});
+
+test('accepts a byte-valid PNG even when the browser reports a generic MIME type', async () => {
+  const harness = setup();
+  harness.input.files = [pngFile({ name: 'export.bin', type: 'application/octet-stream' })];
+
+  await harness.input.dispatch('change');
+
+  assert.equal(harness.preview.src, 'blob:preview-1');
+  assert.equal(harness.status.textContent, 'export.bin selecionado. Revise a prévia e continue.');
 });
 
 test('accepts exactly 10 MiB and rejects one byte more', async () => {
@@ -216,6 +233,16 @@ test('initialization schedules valid-record cleanup for remaining TTL', async ()
   assert.equal(harness.idb.record, null);
 });
 
+test('homepage initialization does not purge before the import consumer runs', async () => {
+  const record = { key: 'pending-png', name: 'ok.png', type: 'image/png', blob: pngFile(), expiresAt: 1600 };
+  const harness = setup({ initialRecord: record, now: 1000, includeGuideForm: false });
+
+  await settle();
+
+  assert.deepEqual(harness.idb.events, []);
+  assert.equal((await harness.api.consumePendingFile()).name, 'ok.png');
+});
+
 test('blocked open rejects and closes a database that succeeds late', async () => {
   const harness = setup({ autoOpenSuccess: false });
   const promise = harness.api.consumePendingFile();
@@ -256,4 +283,34 @@ test('revokes preview object URLs on replacement and pagehide', async () => {
   assert.deepEqual(harness.revokedUrls, ['blob:preview-1']);
   harness.dispatchPage('pagehide');
   assert.deepEqual(harness.revokedUrls, ['blob:preview-1', 'blob:preview-2']);
+});
+
+test('preview accessibility state follows selection, rejection, and page exit', async () => {
+  const harness = setup();
+  assert.equal(harness.preview.src, undefined);
+  assert.equal(harness.preview.alt, '');
+  assert.equal(harness.preview.classList.contains('hidden'), true);
+  assert.equal(harness.preview.hidden, true);
+
+  harness.input.files = [pngFile({ name: 'logo.png' })];
+  await harness.input.dispatch('change');
+  assert.equal(harness.preview.src, 'blob:preview-1');
+  assert.equal(harness.preview.alt, 'Prévia de logo.png');
+  assert.equal(harness.preview.classList.contains('hidden'), false);
+  assert.equal(harness.preview.hidden, false);
+
+  harness.input.files = [new FakeFile([new Uint8Array([255, 216, 255])], 'fake.png', { type: 'image/png' })];
+  await harness.input.dispatch('change');
+  assert.equal(harness.preview.src, undefined);
+  assert.equal(harness.preview.alt, '');
+  assert.equal(harness.preview.classList.contains('hidden'), true);
+  assert.equal(harness.preview.hidden, true);
+
+  harness.input.files = [pngFile({ name: 'again.png' })];
+  await harness.input.dispatch('change');
+  harness.dispatchPage('pagehide');
+  assert.equal(harness.preview.src, undefined);
+  assert.equal(harness.preview.alt, '');
+  assert.equal(harness.preview.classList.contains('hidden'), true);
+  assert.equal(harness.preview.hidden, true);
 });
