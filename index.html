@@ -681,6 +681,8 @@
         let selectedFile = null;
         let loadingInterval = null;
         let progressInterval = null;
+        let previewReader = null;
+        let previewVersion = 0;
 
         // 进度文案
         const loadingMessages = [
@@ -726,6 +728,10 @@
 
         // 显示文件已选择状态
         function showFileSelected(file) {
+            previewVersion += 1;
+            const currentPreviewVersion = previewVersion;
+            if (previewReader) previewReader.abort();
+
             uploadPrompt.classList.add('hidden');
             fileSelected.classList.remove('hidden');
 
@@ -735,14 +741,20 @@
 
             // 显示缩略图
             const reader = new FileReader();
+            previewReader = reader;
             reader.onload = (e) => {
+                if (currentPreviewVersion !== previewVersion || selectedFile !== file) return;
                 thumbImg.src = e.target.result;
+                previewReader = null;
             };
             reader.readAsDataURL(file);
         }
 
         // 重置到上传提示
         function resetToUploadPrompt() {
+            previewVersion += 1;
+            if (previewReader) previewReader.abort();
+            previewReader = null;
             selectedFile = null;
             fileInput.value = '';
             thumbImg.removeAttribute('src');
