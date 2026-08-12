@@ -225,12 +225,26 @@ test('blocked open rejects and closes a database that succeeds late', async () =
   assert.equal(harness.idb.lateDatabaseClosed, true);
 });
 
-test('normalizes native storage errors while preserving domain messages', () => {
+test('exports only the exact transfer interface', () => {
   const harness = setup();
-  assert.match(harness.api.messageForError(new DOMException('Internal database detail', 'QuotaExceededError')), /Não foi possível preparar/);
-  assert.doesNotMatch(harness.api.messageForError(new Error('private implementation detail')), /private implementation detail/);
-  assert.match(harness.api.messageForError(new Error('A transferência expirou. Selecione o arquivo novamente.')), /transferência expirou/);
-  assert.match(harness.api.messageForError(new Error('Selecione um arquivo PNG válido.')), /PNG válido/);
+  assert.deepEqual(Object.keys(harness.api).sort(), ['MAX_BYTES', 'TTL_MS', 'consumePendingFile', 'initGuideUploads']);
+});
+
+test('consume normalizes native storage errors while preserving domain errors', async () => {
+  const native = setup();
+  native.idb.indexedDB.open = () => {
+    const request = { error: new DOMException('Internal database detail', 'QuotaExceededError') };
+    queueMicrotask(() => request.onerror?.());
+    return request;
+  };
+  await assert.rejects(native.api.consumePendingFile(), (error) => {
+    assert.match(error.message, /Não foi possível preparar/);
+    assert.doesNotMatch(error.message, /Internal database detail/);
+    return true;
+  });
+
+  const expired = setup({ initialRecord: { key: 'pending-png', name: 'ok.png', type: 'image/png', blob: pngFile(), expiresAt: 999 } });
+  await assert.rejects(expired.api.consumePendingFile(), /transferência expirou/);
 });
 
 test('revokes preview object URLs on replacement and pagehide', async () => {

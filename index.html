@@ -906,7 +906,7 @@
                 showFileSelected(file);
             })
             .catch((error) => {
-                transferStatus.textContent = window.PngTransfer.messageForError(error);
+                transferStatus.textContent = error.message;
             });
     </script>
 </body>

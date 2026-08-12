@@ -213,7 +213,7 @@
     });
   }
 
-  async function consumePendingFile() {
+  async function readAndDeletePendingFile() {
     const database = await openDatabase();
     let record;
 
@@ -241,12 +241,19 @@
     });
   }
 
+  async function consumePendingFile() {
+    try {
+      return await readAndDeletePendingFile();
+    } catch (error) {
+      throw new Error(messageForError(error));
+    }
+  }
+
   window.PngTransfer = {
     MAX_BYTES: MAX_BYTES,
     TTL_MS: TTL_MS,
     initGuideUploads: initGuideUploads,
-    consumePendingFile: consumePendingFile,
-    messageForError: messageForError
+    consumePendingFile: consumePendingFile
   };
 
   if (document.readyState === 'loading') {

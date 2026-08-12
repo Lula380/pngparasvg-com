@@ -278,7 +278,7 @@ test('home exposes the converter target and consumes a guide transfer without au
   assert.match(html, /selectedFile\s*=\s*file/);
   assert.match(html, /originalFileName\s*=\s*file\.name\.replace/);
   assert.match(html, /showFileSelected\(file\)/);
-  assert.match(html, /transferStatus\.textContent\s*=\s*window\.PngTransfer\.messageForError\(error\)/);
+  assert.match(html, /transferStatus\.textContent\s*=\s*error\.message/);
   assert.doesNotMatch(
     html.match(/window\.PngTransfer\.consumePendingFile\(\)[\s\S]*?\.catch\([\s\S]*?\);/)?.[0] ?? '',
     /startConversion\s*\(/,
