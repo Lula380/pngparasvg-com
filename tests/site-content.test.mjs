@@ -53,6 +53,27 @@ function hasVisibleLink(html, href) {
   return anchors.some((anchor) => anchor[2].replace(/<[^>]*>/g, '').trim().length > 0);
 }
 
+function visibleText(html) {
+  return html
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&amp;/gi, '&')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function tagsWithAttribute(html, tagName, attributeName, expectedValue) {
+  return matches(html, new RegExp(`<${tagName}\\b[^>]*>`, 'gi'))
+    .map((match) => match[0])
+    .filter((tag) => attribute(tag, attributeName)?.toLowerCase() === expectedValue.toLowerCase());
+}
+
 function articleText(html) {
   const article = html.match(/<article\b[^>]*>([\s\S]*?)<\/article>/i)?.[1] ?? '';
   return article
@@ -292,11 +313,133 @@ test('home exposes the converter target and consumes a guide transfer without au
   );
 });
 
+test('homepage metadata describes the local PNG to SVG converter without duplicate keyword metadata', () => {
+  const html = read('index.html');
+  const title = matches(html, /<title\b[^>]*>([\s\S]*?)<\/title>/gi)[0]?.[1].trim();
+  const descriptions = tagsWithAttribute(html, 'meta', 'name', 'description');
+  const canonicals = tagsWithAttribute(html, 'link', 'rel', 'canonical');
+
+  assert.match(title, /PNG para SVG/i);
+  assert.equal((title.match(/PNG para SVG/gi) ?? []).length, 1, 'homepage title must not repeat its primary phrase');
+  assert.equal(descriptions.length, 1, 'homepage needs one description');
+  assert.match(attribute(descriptions[0], 'content'), /gr[áa]tis|gratuit[oa]/i);
+  assert.match(attribute(descriptions[0], 'content'), /(?:local|navegador)/i);
+  assert.equal(canonicals.length, 1, 'homepage needs one canonical');
+  assert.equal(attribute(canonicals[0], 'href'), 'https://pngparasvg.com/');
+  assert.equal(tagsWithAttribute(html, 'meta', 'name', 'keywords').length, 0, 'homepage must not maintain meta keywords');
+
+  const openGraph = new Map(
+    matches(html, /<meta\b[^>]*>/gi)
+      .map((match) => match[0])
+      .filter((tag) => attribute(tag, 'property')?.toLowerCase().startsWith('og:'))
+      .map((tag) => [attribute(tag, 'property').toLowerCase(), attribute(tag, 'content')])
+  );
+  assert.equal(openGraph.get('og:title'), title);
+  assert.equal(openGraph.get('og:description'), attribute(descriptions[0], 'content'));
+  assert.equal(openGraph.get('og:type'), 'website');
+  assert.equal(openGraph.get('og:url'), 'https://pngparasvg.com/');
+});
+
+test('homepage navigation and converter section expose the primary tasks', () => {
+  const html = read('index.html');
+  const headerNav = html.match(/<nav\b[^>]*\baria-label=["']Navega[cç][aã]o principal["'][^>]*>([\s\S]*?)<\/nav>/i)?.[1] ?? '';
+  assert.notEqual(headerNav, '', 'homepage needs a labelled primary navigation');
+  assert.ok(hasVisibleLink(headerNav, '/'), 'primary navigation must visibly link to home');
+  assert.ok(hasVisibleLink(headerNav, '#converter'), 'primary navigation must link to the converter');
+  assert.ok(hasVisibleLink(headerNav, '/guias/'), 'primary navigation must link to the guide hub');
+  assert.ok(hasVisibleLink(headerNav, '#faq'), 'primary navigation must link to the FAQ');
+
+  const converter = html.match(/<section\b[^>]*\bid=["']converter["'][^>]*>([\s\S]*?)<\/section>/i)?.[1] ?? '';
+  assert.notEqual(converter, '', 'converter must be a bounded section');
+  for (const id of ['drop-zone', 'file-input', 'file-selected', 'loading', 'result-container']) {
+    assert.match(converter, new RegExp(`\\bid=["']${id}["']`, 'i'), `converter section must contain #${id}`);
+  }
+});
+
+test('homepage features the guide hub and all article guides before the footer', () => {
+  const html = read('index.html');
+  const footerOffset = html.search(/<footer\b/i);
+  assert.ok(footerOffset > 0, 'homepage must have a footer');
+  const beforeFooter = html.slice(0, footerOffset);
+  for (const href of [
+    '/guias/',
+    '/guias/como-converter-png-para-svg/',
+    '/guias/como-vetorizar-uma-imagem/',
+    '/guias/converter-logo-png-em-svg/'
+  ]) {
+    assert.ok(hasVisibleLink(beforeFooter, href), `homepage must visibly feature ${href} before the footer`);
+  }
+});
+
+test('homepage footer groups real tool, guide, and trust links', () => {
+  const html = read('index.html');
+  const footer = html.match(/<footer\b[^>]*>([\s\S]*?)<\/footer>/i)?.[1] ?? '';
+  assert.notEqual(footer, '', 'homepage needs a footer');
+  for (const heading of ['Ferramentas', 'Guias', 'Sobre']) {
+    assert.match(footer, new RegExp(`<h[2-6]\\b[^>]*>\\s*${heading}\\s*<\\/h[2-6]>`, 'i'));
+  }
+  for (const href of [
+    '#converter',
+    '/guias/',
+    '/guias/como-converter-png-para-svg/',
+    '/guias/como-vetorizar-uma-imagem/',
+    '/guias/converter-logo-png-em-svg/',
+    '/politica-de-privacidade/',
+    '/termos-de-uso/',
+    '/contato/'
+  ]) {
+    assert.ok(hasVisibleLink(footer, href), `footer must visibly link to ${href}`);
+  }
+  assert.doesNotMatch(html, /<a\b[^>]*\bhref=["']#["'][^>]*>/i);
+});
+
+test('homepage visible FAQ exactly matches its FAQPage structured data', () => {
+  const html = read('index.html');
+  const faqSection = html.match(/<section\b[^>]*\bid=["']faq["'][^>]*>([\s\S]*?)<\/section>/i)?.[1] ?? '';
+  const questions = matches(faqSection, /<button\b[^>]*>[\s\S]*?<span\b[^>]*>([\s\S]*?)<\/span>/gi)
+    .map((item) => visibleText(item[1]));
+  const answers = matches(
+    faqSection,
+    /<div\b[^>]*\bclass=["'][^"']*\bfaq-answer\b[^"']*["'][^>]*>([\s\S]*?)<\/div>/gi
+  ).map((item) => visibleText(item[1]));
+  assert.equal(questions.length, answers.length, 'each visible FAQ question needs one visible answer');
+  const visibleItems = questions.map((question, index) => ({ question, answer: answers[index] }));
+  const faqPages = jsonLdFor(html, '/').flatMap(jsonLdObjects).filter((object) => object['@type'] === 'FAQPage');
+  assert.equal(faqPages.length, 1, 'homepage needs one FAQPage object');
+  const schemaItems = faqPages[0].mainEntity.map((item) => ({
+    question: item.name,
+    answer: item.acceptedAnswer?.text
+  }));
+  assert.ok(visibleItems.length > 0, 'homepage needs visible FAQ items');
+  assert.deepEqual(visibleItems, schemaItems);
+});
+
+test('homepage copy accurately scopes local tracing without size or universal quality promises', () => {
+  const copy = visibleText(read('index.html'));
+  assert.match(copy, /processamento local/i);
+  assert.match(copy, /navegador/i);
+  assert.doesNotMatch(
+    copy,
+    /sem limites? de tamanho|sem restri[cç][oõ]es? de tamanho|qualquer resolu[cç][aã]o|arquivos maiores tamb[eé]m|resultado perfeito|SVG perfeito|preserva (?:todas|toda) as cores|mantendo (?:todas|toda) as cores|caminhos vetoriais precisos/i
+  );
+});
+
 test('homepage guide import handler never invokes conversion', () => {
   const html = read('index.html');
   const importHandler = html.match(/window\.PngTransfer\.consumePendingFile\(\)[\s\S]*?\.catch\([\s\S]*?\);/)?.[0] ?? '';
   assert.notEqual(importHandler, '', 'homepage must have an import handler');
   assert.doesNotMatch(importHandler, /startConversion|startConvertBtn|\.click\s*\(/);
+});
+
+test('homepage keeps picker, drop, conversion, named download, and reset behavior wired', () => {
+  const html = read('index.html');
+
+  assert.match(html, /fileInput\.onchange\s*=\s*\(e\)\s*=>[\s\S]*?showFileSelected\(selectedFile\)/);
+  assert.match(html, /dropZone\.addEventListener\(['"]drop['"][\s\S]*?showFileSelected\(file\)/);
+  assert.match(html, /startConvertBtn\.onclick\s*=\s*\(e\)\s*=>[\s\S]*?startConversion\(\)/);
+  assert.match(html, /ImageTracer\.imageToSVG\([\s\S]*?svgPreview\.innerHTML\s*=\s*svgstr/);
+  assert.match(html, /a\.download\s*=\s*originalFileName\s*\+\s*['"]-vectorizado\.svg['"]/);
+  assert.match(html, /resetBtn\.onclick\s*=\s*\(\)\s*=>[\s\S]*?resetToUploadPrompt\(\)/);
 });
 
 test('article guide structured data matches visible metadata and canonical identity', () => {

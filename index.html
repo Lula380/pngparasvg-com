@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PNG para SVG - Conversor Grátis e Online | pngparasvg.com</title>
-    <meta name="description" content="Converta suas imagens PNG em vetores SVG instantaneamente. Ferramenta gratuita, rápida e com total privacidade. Sem envio de arquivos para servidores.">
-    <meta name="keywords" content="png para svg, converter png em svg, vetorizar imagem, png para vetor, conversor svg, imagem para vetor, online svg converter">
+    <title>PNG para SVG: conversor grátis no navegador</title>
+    <meta name="description" content="Converta PNG para SVG grátis com rastreamento local no navegador. Visualize e baixe o vetor sem enviar a imagem para um servidor.">
     <meta name="robots" content="index, follow">
     <meta name="author" content="pngparasvg.com">
+    <link rel="canonical" href="https://pngparasvg.com/">
 
     <!-- Open Graph -->
-    <meta property="og:title" content="PNG para SVG - Conversor Grátis e Online">
-    <meta property="og:description" content="Transforme imagens PNG em vetores SVG em segundos. 100% online, gratuito e seguro.">
+    <meta property="og:title" content="PNG para SVG: conversor grátis no navegador">
+    <meta property="og:description" content="Converta PNG para SVG grátis com rastreamento local no navegador. Visualize e baixe o vetor sem enviar a imagem para um servidor.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://pngparasvg.com">
+    <meta property="og:url" content="https://pngparasvg.com/">
     <meta property="og:locale" content="pt_BR">
 
     <!-- Favicon -->
@@ -30,15 +30,31 @@
                 "name": "Como converter PNG em SVG online grátis?",
                 "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "É muito simples! Basta acessar pngparasvg.com, arrastar sua imagem PNG na área indicada ou clicar em 'Selecionar Arquivo'. Depois clique em 'Converter para SVG Agora' e o arquivo vetorial será gerado instantaneamente no seu navegador, sem necessidade de cadastro ou pagamento."
+                    "text": "Selecione ou arraste um PNG, confira o arquivo escolhido e clique em Converter para SVG agora. O rastreamento acontece no navegador; depois, revise a prévia e baixe o SVG."
                 }
             },
             {
                 "@type": "Question",
-                "name": "Qual a diferença entre PNG e SVG?",
+                "name": "Como transformar PNG em vetor e qual a diferença?",
                 "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "PNG é uma imagem raster composta por pixels, que perde qualidade ao ampliar. SVG é um formato vetorial composto por caminhos matemáticos, podendo ser ampliado infinitamente sem perda de qualidade. Nosso conversor transforma PNG em SVG preservando cores e detalhes."
+                    "text": "PNG é uma imagem formada por pixels. SVG descreve caminhos vetoriais, que podem ser redimensionados sem pixelar. A conversão rastreia formas e cores, mas a fidelidade depende da complexidade e da nitidez da imagem original."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "O conversor suporta converter PNG para SVG colorido?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Sim. O rastreamento identifica áreas de cor e cria caminhos no SVG. A paleta é simplificada durante o processo, por isso o resultado varia conforme a quantidade de cores, os gradientes e os detalhes do PNG."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "O tamanho da imagem afeta a conversão?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Sim. Imagens grandes ou muito detalhadas exigem mais memória e processamento do dispositivo. O conversor reduz dimensões muito altas antes do rastreamento, então prefira um PNG nítido e revise a prévia antes de baixar."
                 }
             },
             {
@@ -46,23 +62,15 @@
                 "name": "Minhas imagens são enviadas para algum servidor?",
                 "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Não! Toda a conversão acontece 100% no seu navegador. Suas imagens nunca saem do seu dispositivo, garantindo total privacidade. Não há armazenamento em servidores."
+                    "text": "A conversão usa processamento local no navegador, sem enviar a imagem para um servidor. Quando você traz um PNG por um guia do site, uma cópia temporária fica no armazenamento deste navegador e é removida ao ser consumida ou expirar."
                 }
             },
             {
                 "@type": "Question",
-                "name": "O conversor suporta PNG para SVG colorido?",
+                "name": "Como usar o arquivo SVG depois de baixar?",
                 "acceptedAnswer": {
                     "@type": "Answer",
-                    "text": "Sim! Nosso conversor preserva todas as cores da imagem original. Você pode criar PNG para SVG colorido mantendo a paleta completa de cores, perfeito para logotipos e ilustrações."
-                }
-            },
-            {
-                "@type": "Question",
-                "name": "É possível vetorizar imagem grátis sem limites?",
-                "acceptedAnswer": {
-                    "@type": "Answer",
-                    "text": "Sim, 100% grátis! Sem limites de uso, sem marcas d'água, sem assinaturas. Você pode converter quantas imagens quiser sem restrictions."
+                    "text": "Abra o SVG em um editor vetorial para ajustar caminhos e cores, ou use-o em um projeto web com a tag img. Antes de imprimir ou publicar, amplie a prévia e verifique se o rastreamento manteve os detalhes importantes."
                 }
             }
         ]
@@ -280,8 +288,8 @@
 <body x-data class="min-h-screen flex flex-col">
 
     <!-- 导航栏 -->
-    <nav class="bg-white border-b-4 border-black py-4">
-        <div class="container mx-auto px-4 max-w-6xl flex justify-between items-center">
+    <nav class="bg-white border-b-4 border-black py-4" aria-label="Navegação principal">
+        <div class="container mx-auto px-4 max-w-6xl flex flex-col md:flex-row justify-between items-center gap-4">
             <a href="/" class="flex items-center gap-3">
                 <div class="w-10 h-10 bg-yellow-400 border-4 border-black flex items-center justify-center">
                     <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -290,23 +298,26 @@
                 </div>
                 <span class="text-2xl font-black text-black tracking-tight">pngparasvg<span class="text-purple-600">.com</span></span>
             </a>
-            <div class="flex items-center gap-2 bg-green-300 border-3 border-black px-4 py-2 font-bold">
-                <svg class="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                <span class="text-sm">100% GRÁTIS</span>
+            <div class="flex flex-wrap items-center justify-center gap-5 font-black uppercase">
+                <a href="#converter" class="hover:text-purple-600 focus:outline focus:outline-4 focus:outline-purple-500">Converter</a>
+                <a href="/guias/" class="hover:text-purple-600 focus:outline focus:outline-4 focus:outline-purple-500">Guias</a>
+                <a href="#faq" class="hover:text-purple-600 focus:outline focus:outline-4 focus:outline-purple-500">FAQ</a>
             </div>
         </div>
     </nav>
 
     <!-- 主体区域 -->
-    <main id="converter" class="flex-grow container mx-auto px-4 py-16 max-w-6xl">
+    <main class="flex-grow container mx-auto px-4 py-16 max-w-6xl">
+
+        <section id="converter" aria-labelledby="converter-title">
 
         <!-- Hero 区域 -->
         <div class="text-center mb-10 max-w-4xl mx-auto">
-            <h1 class="font-bebas text-center text-black uppercase" style="font-size: clamp(2rem, 6vw, 4.5rem); letter-spacing: -0.01em; line-height: 1; white-space: nowrap;">
-                CONVERSOR DE PNG PARA SVG PROFISSIONAL
+            <h1 id="converter-title" class="font-bebas text-center text-black uppercase" style="font-size: clamp(2rem, 6vw, 4.5rem); letter-spacing: -0.01em; line-height: 1;">
+                CONVERSOR DE PNG PARA SVG
             </h1>
             <p class="text-lg md:text-xl text-gray-700 font-bold uppercase mt-6 mb-8">
-                Envie sua imagem e obtenha um svg perfeito instantaneamente.
+                Rastreie sua imagem localmente, confira a prévia e baixe o SVG.
             </p>
             <!-- 卖点标签 -->
             <div class="flex flex-wrap items-center justify-center gap-4">
@@ -317,13 +328,13 @@
                     ✓ SEM REGISTRO
                 </span>
                 <span class="brutal-tag brutal-tag-blue px-5 py-3 text-lg font-bold flex items-center gap-2">
-                    ✓ 100% PRIVADO
+                    ✓ PROCESSAMENTO LOCAL
                 </span>
             </div>
         </div>
 
         <!-- 上传区域 -->
-        <div id="drop-zone" class="brutal-dropzone rounded-none p-12 md:p-16 text-center cursor-pointer max-w-3xl mx-auto">
+        <div id="drop-zone" class="brutal-dropzone rounded-none p-6 md:p-16 text-center cursor-pointer max-w-3xl mx-auto">
             <!-- 第一步：选择文件提示 -->
             <div id="upload-prompt">
                 <div class="w-24 h-24 bg-purple-400 border-4 border-black flex items-center justify-center mx-auto mb-6">
@@ -333,13 +344,13 @@
                 </div>
                 <p class="text-2xl md:text-3xl font-black mb-3">ARRASTE SUA IMAGEM AQUI</p>
                 <p class="text-lg text-gray-600 mb-6 font-medium">ou clique para selecionar</p>
-                <div class="flex items-center justify-center gap-3 mb-8">
+                <div class="flex flex-wrap items-center justify-center gap-3 mb-8">
                     <span class="brutal-tag brutal-tag-yellow px-4 py-2 font-bold">PNG</span>
                     <span class="brutal-tag brutal-tag-yellow px-4 py-2 font-bold">JPG</span>
                     <span class="brutal-tag brutal-tag-yellow px-4 py-2 font-bold">WEBP</span>
                     <span class="brutal-tag brutal-tag-yellow px-4 py-2 font-bold">GIF</span>
                 </div>
-                <button id="select-file-btn" class="brutal-btn py-4 px-10 text-lg">
+                <button id="select-file-btn" class="brutal-btn w-full sm:w-auto py-4 px-4 sm:px-10 text-lg">
                     SELECIONAR ARQUIVO
                 </button>
                 <input type="file" id="file-input" class="hidden" accept="image/*">
@@ -372,7 +383,7 @@
                 </div>
 
                 <!-- 转换按钮 -->
-                <button id="start-convert-btn" class="brutal-btn py-5 px-12 text-xl">
+                <button id="start-convert-btn" class="brutal-btn w-full sm:w-auto py-5 px-4 sm:px-12 text-lg sm:text-xl">
                     ⚡ CONVERTER PARA SVG AGORA
                 </button>
             </div>
@@ -395,8 +406,8 @@
 
         <!-- 结果展示区域 -->
         <div id="result-container" class="hidden mt-10 max-w-4xl mx-auto">
-            <div class="brutal-card p-8 md:p-10">
-                <div class="flex items-center justify-between mb-6">
+            <div class="brutal-card p-5 md:p-10">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                     <h3 class="text-xl font-black flex items-center gap-2">
                         <svg class="w-6 h-6 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
                         PRÉ-VISUALIZAÇÃO DO SVG
@@ -435,6 +446,7 @@
                 </button>
             </div>
         </div>
+        </section>
 
         <!-- 特性区域 -->
         <section class="mt-20 max-w-5xl mx-auto">
@@ -445,7 +457,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-black mb-2">PRIVACIDADE TOTAL</h3>
+                    <h3 class="text-xl font-black mb-2">ARQUIVO LOCAL</h3>
                     <p class="font-medium text-gray-700">Processamento 100% local no seu navegador. Suas imagens nunca saem do seu dispositivo.</p>
                 </div>
                 <div class="brutal-card p-8">
@@ -454,8 +466,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-black mb-2">ULTRA RÁPIDO</h3>
-                    <p class="font-medium text-gray-700">Conversão instantânea. Resultados em segundos, direto no navegador.</p>
+                    <h3 class="text-xl font-black mb-2">DIRETO NO NAVEGADOR</h3>
+                    <p class="font-medium text-gray-700">O tempo de conversão varia conforme a imagem e a capacidade do dispositivo.</p>
                 </div>
                 <div class="brutal-card p-8">
                     <div class="w-16 h-16 bg-purple-300 border-4 border-black flex items-center justify-center mb-5">
@@ -464,8 +476,39 @@
                         </svg>
                     </div>
                     <h3 class="text-xl font-black mb-2">100% GRÁTIS</h3>
-                    <p class="font-medium text-gray-700">Sem assinaturas, sem limites, sem marcas d'água. Feito para designers.</p>
+                    <p class="font-medium text-gray-700">Sem assinatura e sem marca d'água adicionada ao arquivo gerado.</p>
                 </div>
+            </div>
+        </section>
+
+        <!-- Guias em destaque -->
+        <section class="mt-20 max-w-5xl mx-auto" aria-labelledby="featured-guides-title">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
+                <div>
+                    <p class="font-black uppercase text-purple-700 mb-2">Aprenda a revisar o resultado</p>
+                    <h2 id="featured-guides-title" class="text-3xl md:text-4xl font-black">GUIAS DE VETORIZAÇÃO</h2>
+                </div>
+                <a href="/guias/" class="font-black underline decoration-4 underline-offset-4 hover:text-purple-700">Ver todos os guias</a>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6">
+                <article class="brutal-card p-8 flex flex-col">
+                    <p class="font-black text-sm uppercase text-purple-700 mb-3">Primeira conversão</p>
+                    <h3 class="text-xl font-black mb-3">Como converter PNG para SVG</h3>
+                    <p class="font-medium text-gray-700 mb-6">Do arquivo de entrada à revisão da prévia antes do download.</p>
+                    <a href="/guias/como-converter-png-para-svg/" class="mt-auto font-black underline decoration-4 underline-offset-4">Ler o passo a passo</a>
+                </article>
+                <article class="brutal-card p-8 flex flex-col">
+                    <p class="font-black text-sm uppercase text-purple-700 mb-3">Entenda o processo</p>
+                    <h3 class="text-xl font-black mb-3">Como vetorizar uma imagem</h3>
+                    <p class="font-medium text-gray-700 mb-6">Veja o que muda de pixels para caminhos e quais imagens funcionam melhor.</p>
+                    <a href="/guias/como-vetorizar-uma-imagem/" class="mt-auto font-black underline decoration-4 underline-offset-4">Entender a vetorização</a>
+                </article>
+                <article class="brutal-card p-8 flex flex-col">
+                    <p class="font-black text-sm uppercase text-purple-700 mb-3">Cores e transparência</p>
+                    <h3 class="text-xl font-black mb-3">Converter logo PNG em SVG</h3>
+                    <p class="font-medium text-gray-700 mb-6">Prepare logos com cores chapadas e reconheça limites em gradientes.</p>
+                    <a href="/guias/converter-logo-png-em-svg/" class="mt-auto font-black underline decoration-4 underline-offset-4">Preparar um logo</a>
+                </article>
             </div>
         </section>
 
@@ -481,8 +524,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </button>
-                    <div x-show="open === 1" x-collapse x-cloak class="px-6 pb-6 text-slate-600 leading-relaxed">
-                        <p>É muito simples usar nosso <strong>conversor de png para svg</strong>! Basta acessar esta página, arrastar sua imagem PNG na área indicada ou clicar no botão "Selecionar Arquivo". O processo de <strong>converter png em svg</strong> acontece automaticamente no seu navegador — sem precisar instalar nada, criar conta ou pagar nada. O arquivo vetorial é gerado em segundos e você pode baixar imediatamente.</p>
+                    <div x-show="open === 1" x-collapse x-cloak class="faq-answer px-6 pb-6 text-slate-600 leading-relaxed">
+                        <p>Selecione ou arraste um PNG, confira o arquivo escolhido e clique em Converter para SVG agora. O rastreamento acontece no navegador; depois, revise a prévia e baixe o SVG.</p>
                     </div>
                 </div>
 
@@ -494,10 +537,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </button>
-                    <div x-show="open === 2" x-collapse x-cloak class="px-6 pb-6 text-slate-600 leading-relaxed">
-                        <p class="mb-3"><strong>PNG</strong> é uma imagem raster (bitmap), composta por pixels — como uma fotografia. Quando você amplia um PNG, ele começa a ficar pixelado.</p>
-                        <p class="mb-3"><strong>SVG</strong> é um formato vetorial, composto por caminhos matemáticos. Isso significa que você pode ampliar à vontade sem perder qualidade!</p>
-                        <p>Para <strong>transformar png em vetor</strong>, nossa ferramenta usa algoritmos avançados de rastreamento de bordas que identificam as formas na sua imagem e as convertem em caminhos vetoriais precisos. O resultado é um arquivo limpo, editável e que pode ser redimensionado infinitamente.</p>
+                    <div x-show="open === 2" x-collapse x-cloak class="faq-answer px-6 pb-6 text-slate-600 leading-relaxed">
+                        <p>PNG é uma imagem formada por pixels. SVG descreve caminhos vetoriais, que podem ser redimensionados sem pixelar. A conversão rastreia formas e cores, mas a fidelidade depende da complexidade e da nitidez da imagem original.</p>
                     </div>
                 </div>
 
@@ -509,23 +550,21 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </button>
-                    <div x-show="open === 3" x-collapse x-cloak class="px-6 pb-6 text-slate-600 leading-relaxed">
-                        <p class="mb-3"><strong>Sim!</strong> Nosso conversor preserva todas as cores da sua imagem original. Você pode criar <strong>png para svg colorido</strong> mantendo toda a paleta de cores da imagem PNG.</p>
-                        <p>O algoritmo detecta automaticamente as diferentes áreas de cor e as mantém no arquivo vetorial final. Quanto mais cores existirem na imagem original, mais rico será o resultado em SVG. Isso é perfeito para logotipos coloridos, ilustrações e artes que precisam manter sua aparência visual original.</p>
+                    <div x-show="open === 3" x-collapse x-cloak class="faq-answer px-6 pb-6 text-slate-600 leading-relaxed">
+                        <p>Sim. O rastreamento identifica áreas de cor e cria caminhos no SVG. A paleta é simplificada durante o processo, por isso o resultado varia conforme a quantidade de cores, os gradientes e os detalhes do PNG.</p>
                     </div>
                 </div>
 
-                <!-- FAQ Item 4: É possível vetorizar imagem grátis sem limites de tamanho? -->
+                <!-- FAQ Item 4: O tamanho da imagem afeta a conversão? -->
                 <div class="brutal-faq" :class="open === 4 ? 'shadow-lg ring-2 ring-indigo-100' : ''">
                     <button @click="open = open === 4 ? null : 4" class="w-full flex items-center justify-between cursor-pointer p-6 font-black text-lg hover:text-purple-600 text-left">
-                        <span>É possível vetorizar imagem grátis sem limites de tamanho?</span>
+                        <span>O tamanho da imagem afeta a conversão?</span>
                         <svg class="w-5 h-5 text-slate-400 transition-transform duration-300 flex-shrink-0 ml-4" :class="open === 4 ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </button>
-                    <div x-show="open === 4" x-collapse x-cloak class="px-6 pb-6 text-slate-600 leading-relaxed">
-                        <p class="mb-3"><strong>Sim, 100% grátis!</strong> Nosso conversor é completamente gratuito para usar, sem limites de uso diário ou mensal. Você pode <strong>vetorizar imagem grátis</strong> quantas vezes quiser.</p>
-                        <p>Não há restrições de tamanho de arquivo — você pode enviar imagens de qualquer resolução. Para melhor desempenho, recomendamos imagens de até 10MB, mas arquivos maiores também são processados. Sem watermarks, sem marca d'água, sem assinaturas escondidas. A ferramenta foi criada para designers e profissionais que precisam de resultados de qualidade sem complicações.</p>
+                    <div x-show="open === 4" x-collapse x-cloak class="faq-answer px-6 pb-6 text-slate-600 leading-relaxed">
+                        <p>Sim. Imagens grandes ou muito detalhadas exigem mais memória e processamento do dispositivo. O conversor reduz dimensões muito altas antes do rastreamento, então prefira um PNG nítido e revise a prévia antes de baixar.</p>
                     </div>
                 </div>
 
@@ -537,9 +576,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </button>
-                    <div x-show="open === 5" x-collapse x-cloak class="px-6 pb-6 text-slate-600 leading-relaxed">
-                        <p class="mb-3"><strong>Não, nunca!</strong> Toda a conversão acontece 100% no seu navegador, usando o poder de processamento do seu próprio dispositivo. Suas imagens nunca saem do seu computador ou celular.</p>
-                        <p>Isso significa total privacidade: seus arquivos não são armazenados em nenhum servidor, não são compartilhados com terceiros e são descartados assim que você fecha a aba do navegador. Você pode converter imagens sensíveis ou confidenciais sem preocupações. É a forma mais segura de transformar PNG em SVG.</p>
+                    <div x-show="open === 5" x-collapse x-cloak class="faq-answer px-6 pb-6 text-slate-600 leading-relaxed">
+                        <p>A conversão usa processamento local no navegador, sem enviar a imagem para um servidor. Quando você traz um PNG por um guia do site, uma cópia temporária fica no armazenamento deste navegador e é removida ao ser consumida ou expirar.</p>
                     </div>
                 </div>
 
@@ -551,10 +589,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </button>
-                    <div x-show="open === 6" x-collapse x-cloak class="px-6 pb-6 text-slate-600 leading-relaxed">
-                        <p class="mb-3"><strong>No design gráfico:</strong> Abra o SVG em ferramentas como Figma, Adobe Illustrator, Inkscape (gratuito) ou Sketch para editar cores, formas e tamanhos livremente.</p>
-                        <p class="mb-3"><strong>Em projetos web:</strong> Use diretamente em código HTML como tag <code>&lt;img&gt;</code>, como ícone SVG inline, ou como background em CSS. Arquivos SVG são leves e responsivos por natureza.</p>
-                        <p><strong>Em impressão:</strong> Como formato vetorial, o SVG é perfeito para impressões de qualquer tamanho — desde cards de visita até faixas publicitárias — sem perda de qualidade.</p>
+                    <div x-show="open === 6" x-collapse x-cloak class="faq-answer px-6 pb-6 text-slate-600 leading-relaxed">
+                        <p>Abra o SVG em um editor vetorial para ajustar caminhos e cores, ou use-o em um projeto web com a tag img. Antes de imprimir ou publicar, amplie a prévia e verifique se o rastreamento manteve os detalhes importantes.</p>
                     </div>
                 </div>
             </div>
@@ -565,7 +601,7 @@
             <div class="brutal-cta p-10 md:p-14 text-white">
                 <h2 class="text-2xl md:text-4xl font-black mb-4">PRONTO PARA VETORIZAR?</h2>
                 <p class="text-lg mb-8 opacity-90">Comece agora. É grátis, rápido e seguro.</p>
-                <button onclick="document.getElementById('drop-zone').scrollIntoView({behavior: 'smooth'})" class="brutal-btn-secondary text-xl py-4 px-10">
+                <button onclick="document.getElementById('drop-zone').scrollIntoView({behavior: 'smooth'})" class="brutal-btn-secondary w-full sm:w-auto text-lg sm:text-xl py-4 px-4 sm:px-10">
                     ⚡ COMEÇAR AGORA
                 </button>
             </div>
@@ -576,23 +612,37 @@
     <!-- 页脚 -->
     <footer class="brutal-footer py-12 mt-20">
         <div class="container mx-auto px-4 max-w-6xl">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-yellow-400 border-4 border-white flex items-center justify-center">
-                        <svg class="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                        </svg>
-                    </div>
-                    <span class="font-black text-xl">pngparasvg.com</span>
+            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
+                <div>
+                    <p class="font-black text-xl mb-3">pngparasvg.com</p>
+                    <p class="text-gray-300">Rastreamento de imagens no navegador, com prévia antes do download.</p>
                 </div>
-                <nav class="flex flex-wrap justify-center gap-6 text-lg font-bold">
-                    <a href="#faq" class="hover:underline">FAQ</a>
-                    <a href="#" class="hover:underline">Privacidade</a>
-                    <a href="#" class="hover:underline">Termos</a>
-                    <a href="#" class="hover:underline">Contato</a>
+                <nav aria-labelledby="footer-tools">
+                    <h2 id="footer-tools" class="font-black text-lg mb-4">Ferramentas</h2>
+                    <ul class="space-y-3">
+                        <li><a href="#converter" class="hover:underline">Converter PNG para SVG</a></li>
+                        <li><a href="#faq" class="hover:underline">Perguntas frequentes</a></li>
+                    </ul>
                 </nav>
-                <p class="text-lg font-bold">&copy; 2026 - TODOS OS DIREITOS</p>
+                <nav aria-labelledby="footer-guides">
+                    <h2 id="footer-guides" class="font-black text-lg mb-4">Guias</h2>
+                    <ul class="space-y-3">
+                        <li><a href="/guias/" class="hover:underline">Todos os guias</a></li>
+                        <li><a href="/guias/como-converter-png-para-svg/" class="hover:underline">Converter PNG para SVG</a></li>
+                        <li><a href="/guias/como-vetorizar-uma-imagem/" class="hover:underline">Vetorizar uma imagem</a></li>
+                        <li><a href="/guias/converter-logo-png-em-svg/" class="hover:underline">Vetorizar um logo</a></li>
+                    </ul>
+                </nav>
+                <nav aria-labelledby="footer-about">
+                    <h2 id="footer-about" class="font-black text-lg mb-4">Sobre</h2>
+                    <ul class="space-y-3">
+                        <li><a href="/politica-de-privacidade/" class="hover:underline">Política de privacidade</a></li>
+                        <li><a href="/termos-de-uso/" class="hover:underline">Termos de uso</a></li>
+                        <li><a href="/contato/" class="hover:underline">Contato</a></li>
+                    </ul>
+                </nav>
             </div>
+            <p class="mt-10 pt-6 border-t border-gray-700 text-sm text-gray-300">&copy; 2026 pngparasvg.com</p>
         </div>
     </footer>
 
