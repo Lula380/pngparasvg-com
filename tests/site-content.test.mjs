@@ -153,7 +153,13 @@ test('titles, meta descriptions, and canonicals are unique', () => {
     assert.ok(content, `${url} meta description must not be empty`);
     return content;
   });
-  const canonicals = documents.map(({ url }) => canonicalFor(url));
+  const canonicals = documents.map(({ url, file }) => {
+    const tags = matches(read(file), /<link\b[^>]*>/gi)
+      .map((match) => match[0])
+      .filter((tag) => attribute(tag, 'rel')?.toLowerCase() === 'canonical');
+    assert.equal(tags.length, 1, `${url} must have exactly one canonical link for uniqueness checks`);
+    return attribute(tags[0], 'href');
+  });
 
   assert.equal(new Set(titles).size, pages.size, 'titles must be unique');
   assert.equal(new Set(descriptions).size, pages.size, 'meta descriptions must be unique');
@@ -385,7 +391,7 @@ test('public HTML does not make banned quality promises', () => {
   }
 });
 
-test('privacy copy covers browser processing, temporary transfer, operational logs, and contact', () => {
+test('privacy copy covers browser processing, single-use transfer, operational logs, analytics, and contact', () => {
   const privacy = read('politica-de-privacidade/index.html');
   assert.match(privacy, /processamento local/i);
   assert.match(privacy, /navegador/i);
@@ -393,8 +399,16 @@ test('privacy copy covers browser processing, temporary transfer, operational lo
   assert.match(privacy, /tempor.r/i);
   assert.match(privacy, /15\s*minutos/i);
   assert.match(privacy, /expir/i);
-  assert.match(privacy, /logs/i);
+  assert.match(privacy, /uso único/i);
+  assert.match(privacy, /excluíd[oa].*consom/is);
+  assert.match(privacy, /logs de hospedagem e segurança/i);
+  assert.match(privacy, /endereço IP/i);
+  assert.match(privacy, /analytics[^.]*intencionalmente configurad|intencionalmente configurad[^.]*analytics/i);
   assert.match(privacy, /contato@pngparasvg\.com/i);
+  assert.doesNotMatch(
+    privacy,
+    /(?:não|nunca)\s+(?:coletamos|coleta|tratamos|registramos|armazenamos)\s+(?:(?:nenhum|qualquer)\s+)?(?:dados?\b|nada\b)|não há coleta (?:de dados|alguma)|nenhuma coleta|coleta zero/i
+  );
 });
 
 test('terms explain source-file responsibility and automatic tracing limits without a quality guarantee', () => {
@@ -403,6 +417,7 @@ test('terms explain source-file responsibility and automatic tracing limits with
   assert.match(terms, /direitos.*arquivo.*fonte|arquivo.*fonte.*direitos/is);
   assert.match(terms, /traçado automático/i);
   assert.match(terms, /não (?:há|oferecemos|existe) garantia.*qualidade|qualidade.*não (?:é|está) garantida/is);
+  assert.doesNotMatch(terms, /arquivos enviados/i);
 });
 
 test('contact copy provides email guidance for conversion, privacy, and copyright subjects', () => {
@@ -415,11 +430,19 @@ test('contact copy provides email guidance for conversion, privacy, and copyrigh
 });
 
 test('trust pages contain neither guide upload forms nor unsupported structured data', () => {
+  const expectedMailto = 'mailto:contato@pngparasvg.com';
   for (const [url, file] of [...pages].filter(([candidate]) =>
     ['/politica-de-privacidade/', '/termos-de-uso/', '/contato/'].includes(candidate)
   )) {
     const html = read(file);
-    assert.doesNotMatch(html, /<form\b[^>]*\bclass=["'][^"']*\bguide-upload\b/i, `${url} cannot contain a guide upload form`);
-    assert.equal(jsonLdFor(html, url).length, 0, `${url} cannot contain unsupported structured data`);
+    const mailtos = matches(html, /mailto:[^"'\s<>]+/gi).map((match) => match[0].toLowerCase());
+    assert.ok(mailtos.length > 0, `${url} needs the public contact mailto`);
+    assert.ok(mailtos.every((href) => href === expectedMailto), `${url} can expose only ${expectedMailto}`);
+    assert.doesNotMatch(html, /<form\b/i, `${url} cannot contain a form`);
+    assert.doesNotMatch(
+      html,
+      /application\/ld\+json|\bitemscope\b|\bitemtype\b|\bvocab\b|\btypeof\b/i,
+      `${url} cannot contain unsupported structured-data markers`
+    );
   }
 });
