@@ -16,6 +16,12 @@ const pages = new Map([
   ['/contato/', 'contato/index.html']
 ]);
 
+const guideRequirements = new Map([
+  ['/guias/como-converter-png-para-svg/', ['Passo a passo', 'Escolha uma imagem', 'Baixe o SVG']],
+  ['/guias/como-vetorizar-uma-imagem/', ['imagem raster', 'caminhos vetoriais', 'fotografias']],
+  ['/guias/converter-logo-png-em-svg/', ['cores chapadas', 'fundo transparente', 'gradientes']]
+]);
+
 function read(relativePath) {
   assert.ok(fs.existsSync(path.join(root, relativePath)), `required file must exist: ${relativePath}`);
   return fs.readFileSync(path.join(root, relativePath), 'utf8');
@@ -45,6 +51,26 @@ function hasVisibleLink(html, href) {
   );
 
   return anchors.some((anchor) => anchor[2].replace(/<[^>]*>/g, '').trim().length > 0);
+}
+
+function articleText(html) {
+  const article = html.match(/<article\b[^>]*>([\s\S]*?)<\/article>/i)?.[1] ?? '';
+  return article
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&(?:nbsp|amp|lt|gt|quot|#39);/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function wordSet(text) {
+  return new Set(text.toLocaleLowerCase('pt-BR').match(/[\p{L}\p{N}]+/gu) ?? []);
+}
+
+function jaccardSimilarity(left, right) {
+  const shared = [...left].filter((word) => right.has(word)).length;
+  return shared / new Set([...left, ...right]).size;
 }
 
 test('every mapped page exists and declares Brazilian Portuguese', () => {
@@ -161,6 +187,32 @@ test('article guides include the PNG upload form and visible live error region',
     assert.doesNotMatch(openingTag, /\bhidden\b/i, `${url} error region must be visible`);
     assert.doesNotMatch(openingTag, /\bstyle=["'][^"']*(?:display\s*:\s*none|visibility\s*:\s*hidden)[^"']*["']/i, `${url} error region cannot be hidden inline`);
     assert.notEqual(fallbackText, '', `${url} error region needs useful fallback or status text`);
+  }
+});
+
+test('each practical guide covers the phrases required by its reader intent', () => {
+  for (const [url, phrases] of guideRequirements) {
+    const text = articleText(read(pages.get(url)));
+    for (const phrase of phrases) {
+      assert.match(text, new RegExp(phrase, 'i'), `${url} must cover "${phrase}"`);
+    }
+  }
+});
+
+test('practical guides have distinct article copy instead of keyword-swapped text', () => {
+  const guides = [...guideRequirements.keys()].map((url) => ({
+    url,
+    words: wordSet(articleText(read(pages.get(url))))
+  }));
+
+  for (let left = 0; left < guides.length; left += 1) {
+    for (let right = left + 1; right < guides.length; right += 1) {
+      const similarity = jaccardSimilarity(guides[left].words, guides[right].words);
+      assert.ok(
+        similarity < 0.65,
+        `${guides[left].url} and ${guides[right].url} must stay distinct (Jaccard ${similarity.toFixed(3)})`
+      );
+    }
   }
 });
 
