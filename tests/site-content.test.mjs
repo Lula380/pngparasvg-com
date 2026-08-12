@@ -272,10 +272,13 @@ test('guide pages load the deferred transfer script', () => {
 test('home exposes the converter target and consumes a guide transfer without auto-converting', () => {
   const html = read('index.html');
   assert.match(html, /<[^>]+\bid=["']converter["'][^>]*>/i);
+  assert.match(html, /<[^>]+\bid=["']transfer-status["'][^>]*\brole=["']status["'][^>]*>/i);
+  assert.match(html, /\bclass=["'][^"']*\btransfer-status\b[^"']*["']/i);
   assert.match(html, /window\.PngTransfer\.consumePendingFile\(\)/);
   assert.match(html, /selectedFile\s*=\s*file/);
   assert.match(html, /originalFileName\s*=\s*file\.name\.replace/);
   assert.match(html, /showFileSelected\(file\)/);
+  assert.match(html, /transferStatus\.textContent\s*=\s*error\.message/);
   assert.doesNotMatch(
     html.match(/window\.PngTransfer\.consumePendingFile\(\)[\s\S]*?\.catch\([\s\S]*?\);/)?.[0] ?? '',
     /startConversion\s*\(/,

@@ -35,6 +35,7 @@
         return;
       }
 
+      let settled = false;
       const request = window.indexedDB.open(DB_NAME, 1);
       request.onupgradeneeded = function () {
         const database = request.result;
@@ -42,9 +43,24 @@
           database.createObjectStore(STORE_NAME, { keyPath: 'key' });
         }
       };
-      request.onsuccess = function () { resolve(request.result); };
-      request.onerror = function () { reject(request.error || new Error(STORAGE_FAILURE_MESSAGE)); };
-      request.onblocked = function () { reject(new Error(STORAGE_FAILURE_MESSAGE)); };
+      request.onsuccess = function () {
+        if (settled) {
+          request.result.close();
+          return;
+        }
+        settled = true;
+        resolve(request.result);
+      };
+      request.onerror = function () {
+        if (settled) return;
+        settled = true;
+        reject(request.error || new Error(STORAGE_FAILURE_MESSAGE));
+      };
+      request.onblocked = function () {
+        if (settled) return;
+        settled = true;
+        reject(new Error(STORAGE_FAILURE_MESSAGE));
+      };
     });
   }
 
@@ -69,6 +85,7 @@
 
   async function purgeExpiredRecord() {
     let database;
+    let expiresAt;
     try {
       database = await openDatabase();
       const transaction = database.transaction(STORE_NAME, 'readwrite');
@@ -76,8 +93,11 @@
       const record = await requestResult(store.get(RECORD_KEY));
       if (record && (!Number.isFinite(record.expiresAt) || record.expiresAt <= Date.now())) {
         store.delete(RECORD_KEY);
+      } else if (record) {
+        expiresAt = record.expiresAt;
       }
       await transactionDone(transaction);
+      if (expiresAt) scheduleExpiryCleanup(expiresAt);
     } catch (error) {
       // Best-effort privacy cleanup; the normal picker must remain usable.
     } finally {
