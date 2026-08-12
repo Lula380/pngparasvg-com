@@ -385,7 +385,7 @@ test('public HTML does not make banned quality promises', () => {
   }
 });
 
-test('privacy copy covers local processing, temporary IndexedDB transfer, expiry, and contact', () => {
+test('privacy copy covers browser processing, temporary transfer, operational logs, and contact', () => {
   const privacy = read('politica-de-privacidade/index.html');
   assert.match(privacy, /processamento local/i);
   assert.match(privacy, /navegador/i);
@@ -393,9 +393,33 @@ test('privacy copy covers local processing, temporary IndexedDB transfer, expiry
   assert.match(privacy, /tempor.r/i);
   assert.match(privacy, /15\s*minutos/i);
   assert.match(privacy, /expir/i);
+  assert.match(privacy, /logs/i);
   assert.match(privacy, /contato@pngparasvg\.com/i);
 });
 
-test('contact copy provides the contact email link', () => {
-  assert.match(read('contato/index.html'), /mailto:contato@pngparasvg\.com/i);
+test('terms explain source-file responsibility and automatic tracing limits without a quality guarantee', () => {
+  const terms = read('termos-de-uso/index.html');
+  assert.match(terms, /fornecida no estado em que se encontra/i);
+  assert.match(terms, /direitos.*arquivo.*fonte|arquivo.*fonte.*direitos/is);
+  assert.match(terms, /traçado automático/i);
+  assert.match(terms, /não (?:há|oferecemos|existe) garantia.*qualidade|qualidade.*não (?:é|está) garantida/is);
+});
+
+test('contact copy provides email guidance for conversion, privacy, and copyright subjects', () => {
+  const contact = read('contato/index.html');
+  assert.match(contact, /contato@pngparasvg\.com/i);
+  assert.match(contact, /mailto:contato@pngparasvg\.com/i);
+  assert.match(contact, /falhas de conversão/i);
+  assert.match(contact, /privacidade/i);
+  assert.match(contact, /direitos autorais/i);
+});
+
+test('trust pages contain neither guide upload forms nor unsupported structured data', () => {
+  for (const [url, file] of [...pages].filter(([candidate]) =>
+    ['/politica-de-privacidade/', '/termos-de-uso/', '/contato/'].includes(candidate)
+  )) {
+    const html = read(file);
+    assert.doesNotMatch(html, /<form\b[^>]*\bclass=["'][^"']*\bguide-upload\b/i, `${url} cannot contain a guide upload form`);
+    assert.equal(jsonLdFor(html, url).length, 0, `${url} cannot contain unsupported structured data`);
+  }
 });
