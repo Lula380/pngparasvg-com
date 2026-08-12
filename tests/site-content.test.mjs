@@ -55,6 +55,22 @@ test('every mapped page exists and declares Brazilian Portuguese', () => {
   }
 });
 
+test('guide hub lists the article guides in their visible categories', () => {
+  const hubHtml = read('guias/index.html');
+  const articleGuideUrls = [
+    '/guias/como-converter-png-para-svg/',
+    '/guias/como-vetorizar-uma-imagem/',
+    '/guias/converter-logo-png-em-svg/'
+  ];
+
+  for (const label of ['Conversão básica', 'Vetorização de imagens', 'Logos']) {
+    assert.match(hubHtml, new RegExp(label, 'i'));
+  }
+  for (const url of articleGuideUrls) {
+    assert.match(hubHtml, new RegExp(`href=["']${url}["']`));
+  }
+});
+
 test('each page has one non-empty title and one h1 opening tag', () => {
   for (const { url, file } of pageDocuments()) {
     const html = read(file);
