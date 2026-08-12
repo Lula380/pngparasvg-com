@@ -22,6 +22,58 @@ const guideRequirements = new Map([
   ['/guias/converter-logo-png-em-svg/', ['cores chapadas', 'fundo transparente', 'gradientes']]
 ]);
 
+const innerPageOpenGraph = new Map([
+  ['/guias/', {
+    title: 'Guias de PNG, SVG e Vetorização | pngparasvg.com',
+    description: 'Guias práticos em português brasileiro para converter PNG em SVG, vetorizar imagens e preparar logos.',
+    type: 'website',
+    url: 'https://pngparasvg.com/guias/',
+    locale: 'pt_BR'
+  }],
+  ['/guias/como-converter-png-para-svg/', {
+    title: 'Como converter PNG para SVG: passo a passo | pngparasvg.com',
+    description: 'Aprenda a converter PNG para SVG no navegador, preparar a imagem, conferir o traçado automático e corrigir resultados com detalhes demais.',
+    type: 'article',
+    url: 'https://pngparasvg.com/guias/como-converter-png-para-svg/',
+    locale: 'pt_BR'
+  }],
+  ['/guias/como-vetorizar-uma-imagem/', {
+    title: 'Como vetorizar uma imagem online | pngparasvg.com',
+    description: 'Entenda pixels e vetores, descubra quais imagens são boas candidatas e avalie cores, bordas e ruído ao vetorizar online.',
+    type: 'article',
+    url: 'https://pngparasvg.com/guias/como-vetorizar-uma-imagem/',
+    locale: 'pt_BR'
+  }],
+  ['/guias/converter-logo-png-em-svg/', {
+    title: 'Como converter logo PNG em SVG | pngparasvg.com',
+    description: 'Prepare um logo PNG para SVG, preserve transparência e cores úteis e revise contornos, tipografia e legibilidade em vários tamanhos.',
+    type: 'article',
+    url: 'https://pngparasvg.com/guias/converter-logo-png-em-svg/',
+    locale: 'pt_BR'
+  }],
+  ['/politica-de-privacidade/', {
+    title: 'Política de privacidade | pngparasvg.com',
+    description: 'Entenda o processamento local de imagens, o armazenamento temporário no navegador e os registros técnicos do pngparasvg.com.',
+    type: 'website',
+    url: 'https://pngparasvg.com/politica-de-privacidade/',
+    locale: 'pt_BR'
+  }],
+  ['/termos-de-uso/', {
+    title: 'Termos de uso | pngparasvg.com',
+    description: 'Conheça as condições de uso do conversor PNG para SVG, suas limitações técnicas e as responsabilidades sobre os arquivos selecionados.',
+    type: 'website',
+    url: 'https://pngparasvg.com/termos-de-uso/',
+    locale: 'pt_BR'
+  }],
+  ['/contato/', {
+    title: 'Contato | pngparasvg.com',
+    description: 'Fale com o pngparasvg.com sobre falhas de conversão, privacidade, direitos autorais ou sugestões para o site.',
+    type: 'website',
+    url: 'https://pngparasvg.com/contato/',
+    locale: 'pt_BR'
+  }]
+]);
+
 function read(relativePath) {
   assert.ok(fs.existsSync(path.join(root, relativePath)), `required file must exist: ${relativePath}`);
   return fs.readFileSync(path.join(root, relativePath), 'utf8');
@@ -121,6 +173,25 @@ function jsonLdFor(html, url) {
   });
 }
 
+function cssDeclarations(css, selector) {
+  const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const body = css.match(new RegExp(`${escapedSelector}\\s*\\{([^}]*)\\}`, 'i'))?.[1] ?? '';
+  assert.notEqual(body, '', `${selector} must have its own CSS rule`);
+  return new Map(
+    body
+      .split(';')
+      .map((declaration) => declaration.trim())
+      .filter(Boolean)
+      .map((declaration) => {
+        const separator = declaration.indexOf(':');
+        return [
+          declaration.slice(0, separator).trim().toLowerCase(),
+          declaration.slice(separator + 1).trim().toLowerCase()
+        ];
+      })
+  );
+}
+
 test('every mapped page exists and declares Brazilian Portuguese', () => {
   for (const { url, file } of pageDocuments()) {
     assert.ok(fs.existsSync(path.join(root, file)), `${url} must exist at ${file}`);
@@ -163,6 +234,18 @@ test('each page has its absolute self-referencing canonical', () => {
       .filter((tag) => attribute(tag, 'rel')?.toLowerCase() === 'canonical');
     assert.equal(canonicals.length, 1, `${url} must have exactly one canonical link`);
     assert.equal(attribute(canonicals[0], 'href'), canonicalFor(url), `${url} canonical must self-reference`);
+  }
+});
+
+test('each inner page exposes its exact page-specific Open Graph metadata', () => {
+  for (const [url, expected] of innerPageOpenGraph) {
+    const html = read(pages.get(url));
+    for (const [field, value] of Object.entries(expected)) {
+      const property = `og:${field}`;
+      const tags = tagsWithAttribute(html, 'meta', 'property', property);
+      assert.equal(tags.length, 1, `${url} must have exactly one ${property}`);
+      assert.equal(attribute(tags[0], 'content'), value, `${url} ${property} must be page-specific`);
+    }
   }
 });
 
@@ -259,6 +342,26 @@ test('article guides include the PNG upload form and visible live error region',
     assert.doesNotMatch(openingTag, /\bstyle=["'][^"']*(?:display\s*:\s*none|visibility\s*:\s*hidden)[^"']*["']/i, `${url} error region cannot be hidden inline`);
     assert.notEqual(fallbackText, '', `${url} error region needs useful fallback or status text`);
   }
+});
+
+test('article guide previews start hidden, sourceless, and decorative', () => {
+  for (const url of guideRequirements.keys()) {
+    const html = read(pages.get(url));
+    const previewTags = openingTagsWithClass(html, 'guide-upload-preview');
+    assert.equal(previewTags.length, 1, `${url} needs exactly one guide preview`);
+    const preview = previewTags[0];
+    assert.match(preview, /^<img\b/i, `${url} guide preview must be an image`);
+    assert.match(preview, /\shidden(?:\s|=|>)/i, `${url} empty guide preview must start hidden`);
+    assert.equal(attribute(preview, 'src'), undefined, `${url} empty guide preview cannot have a source`);
+    assert.equal(attribute(preview, 'alt'), '', `${url} empty guide preview must start decorative`);
+  }
+});
+
+test('guide preview CSS keeps selected images responsive and bounded', () => {
+  const declarations = cssDeclarations(read('assets/content-site.css'), '.guide-upload-preview');
+  assert.equal(declarations.get('max-width'), '100%');
+  assert.equal(declarations.get('max-height'), '18rem');
+  assert.equal(declarations.get('object-fit'), 'contain');
 });
 
 test('guide upload transfer keeps the private PNG handoff bounded and disposable', () => {
@@ -526,6 +629,24 @@ test('article guide structured data matches visible metadata and canonical ident
       0,
       `${url} cannot invent a Person author`
     );
+  }
+});
+
+test('article guide footers use the standard groups and visibly expose all eight routes', () => {
+  const expectedHeadings = ['Ferramentas', 'Guias', 'Sobre'];
+  const expectedRoutes = [...pages.keys()];
+
+  for (const url of guideRequirements.keys()) {
+    const html = read(pages.get(url));
+    const footer = html.match(/<footer\b[^>]*>([\s\S]*?)<\/footer>/i)?.[1] ?? '';
+    assert.notEqual(footer, '', `${url} needs a footer`);
+    const headings = matches(footer, /<h[2-6]\b[^>]*>([\s\S]*?)<\/h[2-6]>/gi)
+      .map((heading) => visibleText(heading[1]));
+    assert.deepEqual(headings, expectedHeadings, `${url} footer groups must be standardized`);
+
+    for (const route of expectedRoutes) {
+      assert.ok(hasVisibleLink(footer, route), `${url} footer must visibly link to ${route}`);
+    }
   }
 });
 
