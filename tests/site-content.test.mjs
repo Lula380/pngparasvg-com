@@ -74,6 +74,11 @@ function tagsWithAttribute(html, tagName, attributeName, expectedValue) {
     .filter((tag) => attribute(tag, attributeName)?.toLowerCase() === expectedValue.toLowerCase());
 }
 
+function attributeNames(openingTag) {
+  return matches(openingTag, /\s([^\s=/>]+)(?:\s*=\s*(?:["'][^"']*["']|[^\s>]+))?/gi)
+    .map((match) => match[1].toLowerCase());
+}
+
 function articleText(html) {
   const article = html.match(/<article\b[^>]*>([\s\S]*?)<\/article>/i)?.[1] ?? '';
   return article
@@ -418,10 +423,56 @@ test('homepage copy accurately scopes local tracing without size or universal qu
   const copy = visibleText(read('index.html'));
   assert.match(copy, /processamento local/i);
   assert.match(copy, /navegador/i);
+  assert.match(copy, /tempo de convers[aã]o varia/i, 'speed copy must explain its dependency on image and device');
   assert.doesNotMatch(
     copy,
-    /sem limites? de tamanho|sem restri[cç][oõ]es? de tamanho|qualquer resolu[cç][aã]o|arquivos maiores tamb[eé]m|resultado perfeito|SVG perfeito|preserva (?:todas|toda) as cores|mantendo (?:todas|toda) as cores|caminhos vetoriais precisos/i
+    /sem limites? de tamanho|sem restri[cç][oõ]es? de tamanho|qualquer resolu[cç][aã]o|arquivos maiores tamb[eé]m|resultado perfeito|SVG perfeito|preserva (?:todas|toda) as cores|mantendo (?:todas|toda) as cores|caminhos vetoriais precisos|\b(?:ultra\s+)?r[áa]pid[oa]\b|\bsegur[oa]\b/i
   );
+});
+
+test('homepage converter controls expose accessible names and preview state', () => {
+  const html = read('index.html');
+  const removeButton = html.match(/<button\b[^>]*\bid=["']remove-file-btn["'][^>]*>/i)?.[0] ?? '';
+  const preview = html.match(/<img\b[^>]*\bid=["']thumb-img["'][^>]*>/i)?.[0] ?? '';
+
+  assert.equal(attribute(removeButton, 'type')?.toLowerCase(), 'button');
+  assert.equal(attribute(removeButton, 'aria-label'), 'Remover arquivo selecionado');
+  assert.equal(attribute(preview, 'alt'), '', 'empty preview must start decorative');
+  assert.match(html, /showFileSelected\(file\)[\s\S]*?thumbImg\.alt\s*=\s*`Pr[eé]-visualiza[cç][aã]o de \$\{file\.name\}`/);
+  assert.match(html, /resetToUploadPrompt\(\)[\s\S]*?thumbImg\.removeAttribute\(['"]src['"]\)[\s\S]*?thumbImg\.alt\s*=\s*['"]['"]/);
+});
+
+test('homepage FAQ triggers expose their expanded state and control stable panels', () => {
+  const html = read('index.html');
+  const faqSection = html.match(/<section\b[^>]*\bid=["']faq["'][^>]*>([\s\S]*?)<\/section>/i)?.[1] ?? '';
+
+  for (let index = 1; index <= 6; index += 1) {
+    const button = faqSection.match(
+      new RegExp(`<button\\b[^>]*\\baria-controls=["']faq-answer-${index}["'][^>]*>`, 'i')
+    )?.[0] ?? '';
+    assert.notEqual(button, '', `FAQ ${index} trigger must control its panel`);
+    assert.match(button, new RegExp(`:aria-expanded=["']open === ${index}["']`, 'i'));
+    assert.match(
+      faqSection,
+      new RegExp(`<div\\b[^>]*\\bid=["']faq-answer-${index}["'][^>]*\\bx-show=["']open === ${index}["'][^>]*>`, 'i'),
+      `FAQ ${index} needs a stable controlled panel`
+    );
+  }
+});
+
+test('homepage opening tags never repeat an attribute or declare duplicate ids', () => {
+  const html = read('index.html');
+  const ids = [];
+
+  for (const match of matches(html, /<[a-z][\w-]*\b[^>]*>/gi)) {
+    const tag = match[0];
+    const names = attributeNames(tag);
+    assert.equal(new Set(names).size, names.length, `opening tag repeats an attribute: ${tag}`);
+    const id = attribute(tag, 'id');
+    if (id) ids.push(id);
+  }
+
+  assert.equal(new Set(ids).size, ids.length, 'homepage ids must be unique');
 });
 
 test('homepage guide import handler never invokes conversion', () => {
