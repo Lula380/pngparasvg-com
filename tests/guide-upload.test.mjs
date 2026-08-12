@@ -102,11 +102,14 @@ function setup({ initialRecord = null, now = 1000, autoOpenSuccess = true } = {}
 
   const idb = indexedDbHarness(initialRecord, autoOpenSuccess);
   const timers = [];
+  const pageListeners = new Map();
+  const revokedUrls = [];
+  let objectUrlCount = 0;
   const location = { navigations: [], assign(url) { this.navigations.push({ url, events: [...idb.events] }); } };
   const window = {
     indexedDB: idb.indexedDB,
     location,
-    addEventListener() {},
+    addEventListener(type, listener) { pageListeners.set(type, listener); },
     setTimeout(callback, delay) { timers.push({ callback, delay }); return timers.length; }
   };
   const document = {
@@ -115,13 +118,17 @@ function setup({ initialRecord = null, now = 1000, autoOpenSuccess = true } = {}
     addEventListener() {}
   };
   const context = vm.createContext({
-    window, document, Blob, File: FakeFile, URL: { createObjectURL: () => 'blob:preview', revokeObjectURL() {} },
+    window, document, Blob, File: FakeFile, URL: {
+      createObjectURL: () => `blob:preview-${++objectUrlCount}`,
+      revokeObjectURL(url) { revokedUrls.push(url); }
+    },
     Uint8Array, Promise, Error, Date: class extends Date { static now() { return currentTime; } }, Number, Math,
     setTimeout, queueMicrotask
   });
   vm.runInContext(source, context);
   return {
-    api: window.PngTransfer, form, input, preview, status, submit, timers, location, idb,
+    api: window.PngTransfer, form, input, preview, status, submit, timers, location, idb, revokedUrls,
+    dispatchPage(type) { pageListeners.get(type)?.(); },
     setNow(value) { currentTime = value; }
   };
 }
@@ -138,7 +145,7 @@ test('accepts PNG magic bytes and rejects a renamed JPEG before preview', async 
   const valid = setup();
   valid.input.files = [pngFile()];
   await valid.input.dispatch('change');
-  assert.equal(valid.preview.src, 'blob:preview');
+  assert.equal(valid.preview.src, 'blob:preview-1');
 
   const disguised = setup();
   disguised.input.files = [new FakeFile([new Uint8Array([255, 216, 255])], 'photo.png', { type: 'image/png' })];
@@ -151,7 +158,7 @@ test('accepts exactly 10 MiB and rejects one byte more', async () => {
   const boundary = setup();
   boundary.input.files = [pngFile({ size: boundary.api.MAX_BYTES })];
   await boundary.input.dispatch('change');
-  assert.equal(boundary.preview.src, 'blob:preview');
+  assert.equal(boundary.preview.src, 'blob:preview-1');
 
   const over = setup();
   over.input.files = [pngFile({ size: over.api.MAX_BYTES + 1 })];
@@ -176,7 +183,7 @@ test('commits storage before navigation and recovers UI after storage failure', 
   assert.equal(failure.input.disabled, false);
   assert.equal(failure.submit.disabled, false);
   assert.equal(failure.input.files[0].name, 'image.png');
-  assert.equal(failure.preview.src, 'blob:preview');
+  assert.equal(failure.preview.src, 'blob:preview-1');
   assert.match(failure.status.textContent, /selecione o arquivo novamente/i);
 });
 
@@ -216,4 +223,23 @@ test('blocked open rejects and closes a database that succeeds late', async () =
   harness.idb.triggerBlockedThenSuccess();
   await assert.rejects(promise);
   assert.equal(harness.idb.lateDatabaseClosed, true);
+});
+
+test('normalizes native storage errors while preserving domain messages', () => {
+  const harness = setup();
+  assert.match(harness.api.messageForError(new DOMException('Internal database detail', 'QuotaExceededError')), /Não foi possível preparar/);
+  assert.doesNotMatch(harness.api.messageForError(new Error('private implementation detail')), /private implementation detail/);
+  assert.match(harness.api.messageForError(new Error('A transferência expirou. Selecione o arquivo novamente.')), /transferência expirou/);
+  assert.match(harness.api.messageForError(new Error('Selecione um arquivo PNG válido.')), /PNG válido/);
+});
+
+test('revokes preview object URLs on replacement and pagehide', async () => {
+  const harness = setup();
+  harness.input.files = [pngFile({ name: 'first.png' })];
+  await harness.input.dispatch('change');
+  harness.input.files = [pngFile({ name: 'second.png' })];
+  await harness.input.dispatch('change');
+  assert.deepEqual(harness.revokedUrls, ['blob:preview-1']);
+  harness.dispatchPage('pagehide');
+  assert.deepEqual(harness.revokedUrls, ['blob:preview-1', 'blob:preview-2']);
 });

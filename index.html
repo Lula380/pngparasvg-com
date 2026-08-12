@@ -906,7 +906,7 @@
                 showFileSelected(file);
             })
             .catch((error) => {
-                transferStatus.textContent = error.message || 'Não foi possível recuperar a imagem. Selecione o arquivo novamente.';
+                transferStatus.textContent = window.PngTransfer.messageForError(error);
             });
     </script>
 </body>

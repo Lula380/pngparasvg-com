@@ -12,6 +12,12 @@
   const OVERSIZE_MESSAGE = 'O arquivo deve ter no máximo 10 MiB.';
   const STORAGE_FAILURE_MESSAGE = 'Não foi possível preparar a imagem neste navegador. Abra o conversor e selecione o arquivo novamente.';
   const EXPIRED_MESSAGE = 'A transferência expirou. Selecione o arquivo novamente.';
+  const DOMAIN_MESSAGES = [INVALID_FORMAT_MESSAGE, OVERSIZE_MESSAGE, STORAGE_FAILURE_MESSAGE, EXPIRED_MESSAGE];
+
+  function messageForError(error) {
+    const message = error && typeof error.message === 'string' ? error.message : '';
+    return DOMAIN_MESSAGES.includes(message) ? message : STORAGE_FAILURE_MESSAGE;
+  }
 
   function requestResult(request) {
     return new Promise(function (resolve, reject) {
@@ -239,7 +245,8 @@
     MAX_BYTES: MAX_BYTES,
     TTL_MS: TTL_MS,
     initGuideUploads: initGuideUploads,
-    consumePendingFile: consumePendingFile
+    consumePendingFile: consumePendingFile,
+    messageForError: messageForError
   };
 
   if (document.readyState === 'loading') {
