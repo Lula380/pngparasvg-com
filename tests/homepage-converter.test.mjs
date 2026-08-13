@@ -130,8 +130,8 @@ function setup() {
   const objectUrls = [];
   const revokedUrls = [];
   const ImageTracer = {
-    imageToSVG(dataUrl, success, _failure, options) {
-      tracedInputs.push({ dataUrl, options });
+    imageToSVG(dataUrl, success, options) {
+      tracedInputs.push({ dataUrl, options, argumentCount: arguments.length });
       success('<svg viewBox="0 0 2 1"><path fill="none" d="M0 0"/></svg>');
     }
   };
@@ -297,6 +297,18 @@ test('real transparent PNG fixture reaches tracing without a white preprocessing
   assert.ok(outputAlpha.some((alpha) => alpha === 255), 'preprocessed canvas must retain opaque fixture pixels');
   assert.equal(harness.tracedInputs.length, 1);
   assert.equal(harness.tracedInputs[0].dataUrl, 'data:image/png;base64,preprocessed');
+  assert.equal(harness.tracedInputs[0].argumentCount, 3);
+  assert.deepEqual(
+    JSON.parse(JSON.stringify(harness.tracedInputs[0].options)),
+    {
+      numberofcolors: 32,
+      colorquantcycles: 2,
+      pathomit: 1,
+      mincolorratio: 0,
+      ltres: 0.5,
+      qtres: 0.5
+    }
+  );
   assert.match(harness.elements['svg-preview'].innerHTML, /<svg/);
   assert.equal(harness.elements.loading.classList.contains('hidden'), true);
   assert.equal(harness.elements['result-container'].classList.contains('hidden'), false);

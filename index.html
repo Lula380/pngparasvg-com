@@ -798,12 +798,6 @@
                                 loading.classList.add('hidden');
                                 resultContainer.classList.remove('hidden');
                             },
-                            function(err) {
-                                console.error('Erro na conversão:', err);
-                                stopLoadingAnimation();
-                                alert('Ocorreu um erro ao converter. Tente novamente.');
-                                resetToUploadPrompt();
-                            },
                             options
                         );
                     } catch (e) {
