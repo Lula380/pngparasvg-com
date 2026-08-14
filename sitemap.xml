@@ -2,8 +2,35 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://pngparasvg.com/</loc>
-    <lastmod>2026-08-07</lastmod>
-    <changefreq>weekly</changefreq>
+    <lastmod>2026-08-12</lastmod>
     <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://pngparasvg.com/guias/</loc>
+    <lastmod>2026-08-12</lastmod>
+  </url>
+  <url>
+    <loc>https://pngparasvg.com/guias/como-converter-png-para-svg/</loc>
+    <lastmod>2026-08-12</lastmod>
+  </url>
+  <url>
+    <loc>https://pngparasvg.com/guias/como-vetorizar-uma-imagem/</loc>
+    <lastmod>2026-08-12</lastmod>
+  </url>
+  <url>
+    <loc>https://pngparasvg.com/guias/converter-logo-png-em-svg/</loc>
+    <lastmod>2026-08-12</lastmod>
+  </url>
+  <url>
+    <loc>https://pngparasvg.com/politica-de-privacidade/</loc>
+    <lastmod>2026-08-12</lastmod>
+  </url>
+  <url>
+    <loc>https://pngparasvg.com/termos-de-uso/</loc>
+    <lastmod>2026-08-12</lastmod>
+  </url>
+  <url>
+    <loc>https://pngparasvg.com/contato/</loc>
+    <lastmod>2026-08-12</lastmod>
   </url>
 </urlset>
